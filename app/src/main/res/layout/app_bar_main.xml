@@ -29,7 +29,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        android:src="@drawable/ic_expand_less_white_24dp" />
+        android:visibility="gone"
+        android:src="@drawable/ic_insert_photo_white_24dp" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_write"

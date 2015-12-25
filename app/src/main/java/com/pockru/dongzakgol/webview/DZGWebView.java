@@ -12,6 +12,7 @@ import android.os.Environment;
 import android.os.Vibrator;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.webkit.CookieManager;
 import android.webkit.DownloadListener;
@@ -189,6 +190,7 @@ public class DZGWebView extends WebView {
         public void print(String data) {
 //            data = "<html>" + data + "</html>";
 //            Document doc = Jsoup.parse(data);
+            Log.i("test", "data : "+data);
             if (data != null) {
                 if (data.contains(UrlConts.ACT_LOGIN)) {
                     mListener.notifyLogin(false);

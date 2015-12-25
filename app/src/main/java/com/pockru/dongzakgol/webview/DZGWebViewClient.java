@@ -5,9 +5,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.CookieManager;
+import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
@@ -56,7 +58,7 @@ public class DZGWebViewClient extends WebViewClient {
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
         Log.i("test", "shouldOverrideUrlLoading : " + url);
         Uri uri = Uri.parse(url);
-        if (uri != null && (uri.getScheme().equals("http") || uri.getScheme().equals("https"))) {
+        if (uri != null && (uri.getScheme().equals("http") || uri.getScheme().equals("https") || uri.getScheme().equals("javascript"))) {
             if (uri.getHost().contains(Uri.parse(UrlConts.MAIN_URL).getHost())) {
                 view.loadUrl(url);
                 return true;
@@ -71,13 +73,21 @@ public class DZGWebViewClient extends WebViewClient {
     @Override
     public void onPageFinished(WebView view, String url) {
         super.onPageFinished(view, url);
-
         if (mListener != null) {
             mListener.notifyUrlLoadFinish();
         }
 
 //        view.loadUrl("javascript:window.JSBridge.print()");
-        view.loadUrl("javascript:window.JSBridge.print(document.querySelector(\"body > div.header_area > div.top_gnb > div > ul > li:nth-child(2) > a\"));");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            view.evaluateJavascript(UrlConts.CHECK_LOGIN_JS, new ValueCallback<String>() {
+                @Override
+                public void onReceiveValue(String value) {
+
+                }
+            });
+        } else {
+            view.loadUrl(UrlConts.CHECK_LOGIN_JS);
+        }
     }
 
     private boolean sendOutside(String url) {

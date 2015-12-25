@@ -25,10 +25,10 @@ public class MainActivity extends BaseActivity
 
     private DZGWebView mWebView;
 
-    private String mMid;
+    private String mMid = UrlConts.MAIN_MID;
 
     private FloatingActionButton mFabWrite;
-    private FloatingActionButton mFabUp;
+    private FloatingActionButton mFabUploadImg;
     private SwipeRefreshLayout mRefreshLayout;
     private TextView mTvHeaderMsg;
 
@@ -47,16 +47,23 @@ public class MainActivity extends BaseActivity
             }
         });
 
-        mFabUp = (FloatingActionButton) findViewById(R.id.fab_up);
-        mFabUp.setOnClickListener(new View.OnClickListener() {
+        mFabUploadImg = (FloatingActionButton) findViewById(R.id.fab_up);
+        mFabUploadImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 //                mWebView.setScrollY(0);
-                mWebView.loadUrl(UrlConts.insertImageJS("http://imgnews.naver.net/image/upload/item/2015/12/25/172402405_1.jpg?type=f270_166"));
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    mWebView.evaluateJavascript(UrlConts.insertImageJS("http://i.imgur.com/Q1APjZv.png"), new ValueCallback<String>() {
+                        @Override
+                        public void onReceiveValue(String value) {
+
+                        }
+                    });
+                } else {
+                    mWebView.loadUrl(UrlConts.insertImageJS("http://i.imgur.com/Q1APjZv.png"));
+                }
             }
         });
-
-        // <img src= "http://i.imgur.com/Q1APjZv.png" width ="100%">
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -68,23 +75,6 @@ public class MainActivity extends BaseActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         mTvHeaderMsg = (TextView) navigationView.getHeaderView(0).findViewById(R.id.tv_header_msg);
-        mTvHeaderMsg.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mTvHeaderMsg.isEnabled()) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                        mWebView.evaluateJavascript(UrlConts.getLoginUrl(mWebView.getUrl()), new ValueCallback<String>() {
-                            @Override
-                            public void onReceiveValue(String value) {
-
-                            }
-                        });
-                    } else {
-                        mWebView.loadUrl(UrlConts.getLoginUrl(mWebView.getUrl()));
-                    }
-                }
-            }
-        });
 
         mRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.srl_main);
         mRefreshLayout.setColorSchemeColors(R.color.refresh_progress_1, R.color.refresh_progress_2);
@@ -96,7 +86,7 @@ public class MainActivity extends BaseActivity
         });
 
         mWebView = (DZGWebView) findViewById(R.id.webview);
-        mWebView.loadUrl(UrlConts.MAIN_URL);
+        mWebView.loadUrl(UrlConts.getMainUrl());
     }
 
     @Override
@@ -169,20 +159,11 @@ public class MainActivity extends BaseActivity
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
-        int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+        switch (item.getItemId()) {
+            case R.id.nav_show_my_info:
+                mWebView.loadUrl(UrlConts.getMyInfoUrlUrl(mMid));
+                break;
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -207,27 +188,19 @@ public class MainActivity extends BaseActivity
         switch (act) {
             case UrlConts.ACT_WRITE:
                 fabControll(false);
-
-                // test
-
+                mFabUploadImg.show();
                 break;
             default:
                 fabControll(true);
+                mFabUploadImg.hide();
                 break;
         }
     }
 
     private void fabControll(boolean showWriteFab) {
         if (showWriteFab) {
-            mFabUp.animate()
-                    .translationY(-(mFabWrite.getMeasuredHeight() +
-                            getResources().getDimensionPixelOffset(R.dimen.fab_margin)))
-                    .start();
             mFabWrite.show();
         } else {
-            mFabUp.animate().
-                    translationY(0)
-                    .start();
             mFabWrite.hide();
         }
     }
@@ -239,13 +212,15 @@ public class MainActivity extends BaseActivity
 
     @Override
     public void notifyLogin(boolean isLogin) {
-        mTvHeaderMsg.setEnabled(!isLogin);
+        if (isLogin) {
+            mTvHeaderMsg.setText(R.string.inform_msg_logout);
+        } else {
+            mTvHeaderMsg.setText(R.string.inform_msg_login);
+        }
     }
 
     @Override
     public void nofityImgLinkComponentOpen() {
-        // TODO test
-//        WebView childWebView = mWebView.getChildWebView();
-        mWebView.loadUrl("javascript:document.querySelector(\"#editor\").innerHTML = '<img src =\"http://i.imgur.com/Q1APjZv.png\">';");
+
     }
 }

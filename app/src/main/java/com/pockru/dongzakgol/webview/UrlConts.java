@@ -41,7 +41,18 @@ public class UrlConts {
     public static final String PARAM_MID = "mid";
     public static final String PARAM_ACT = "act";
 
+    public static final String MAIN_MID = "page_dhbZ41";
 
+    //document.querySelector("#top_mn")
+    public static final java.lang.String CHECK_LOGIN_JS = "javascript:window.JSBridge.print(document.querySelector(\"#top_mn\"));";
+
+    public static final String getMainUrl() {
+        Uri uri = Uri.parse(MAIN_URL);
+        uri = uri.buildUpon()
+                .appendPath(MAIN_PATH)
+                .appendQueryParameter(PARAM_MID, MAIN_MID).build();
+        return uri.toString();
+    }
 
     public static final String getWriteUrl(String mid) {
         Uri uri = Uri.parse(MAIN_URL);
