@@ -18,6 +18,7 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 import com.pockru.dongzakgol.BaseActivity;
+import com.pockru.dongzakgol.R;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,10 +34,10 @@ public class DZGWebViewChromeClient extends WebChromeClient{
 
     Context mContext;
 
-    private View mCustomView;
-    private int mOriginalSystemUiVisibility;
-    private int mOriginalOrientation;
-    private CustomViewCallback mCustomViewCallback;
+//    private View mCustomView;
+//    private int mOriginalSystemUiVisibility;
+//    private int mOriginalOrientation;
+//    private CustomViewCallback mCustomViewCallback;
 
     public DZGWebViewChromeClient(Context context) {
         mContext = context;
@@ -135,71 +136,78 @@ public class DZGWebViewChromeClient extends WebChromeClient{
         return imageFile;
     }
 
+    DZGWebView childView;
+
     @Override
     public boolean onCreateWindow(WebView view, boolean isDialog, boolean isUserGesture, Message resultMsg) {
-        DZGWebView childeView = new DZGWebView(mContext);
-        childeView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+        childView = new DZGWebView(mContext);
+        childView.setId(R.id.child_webview);
+        childView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
         WebView.WebViewTransport transport = (WebView.WebViewTransport) resultMsg.obj;
-        transport.setWebView(childeView);
+        transport.setWebView(childView);
         resultMsg.sendToTarget();
         return true;
     }
 
     @Override
     public void onCloseWindow(WebView window) {
-        window.destroy();
+        childView.destroy();
+        childView = null;
     }
 
-    @Override
-    public void onShowCustomView(View view,
-                                 WebChromeClient.CustomViewCallback callback) {
-        // if a view already exists then immediately terminate the new one
-        if (mCustomView != null) {
-            onHideCustomView();
-            return;
-        }
-
-        // 1. Stash the current state
-        mCustomView = view;
-        mOriginalSystemUiVisibility = ((Activity)mContext).getWindow().getDecorView().getSystemUiVisibility();
-        mOriginalOrientation = ((Activity)mContext).getRequestedOrientation();
-
-        // 2. Stash the custom view callback
-        mCustomViewCallback = callback;
-
-        // 3. Add the custom view to the view hierarchy
-        FrameLayout decor = (FrameLayout) ((Activity)mContext).getWindow().getDecorView();
-        decor.addView(mCustomView, new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
-
-
-        // 4. Change the state of the window
-        ((Activity)mContext).getWindow().getDecorView().setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
-                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
-                        View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
-                        View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
-                        View.SYSTEM_UI_FLAG_FULLSCREEN |
-                        View.SYSTEM_UI_FLAG_IMMERSIVE);
-        ((Activity)mContext).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+    public DZGWebView getChildWebView(){
+        return childView;
     }
-
-    @Override
-    public void onHideCustomView() {
-        // 1. Remove the custom view
-        FrameLayout decor = (FrameLayout) ((Activity)mContext).getWindow().getDecorView();
-        decor.removeView(mCustomView);
-        mCustomView = null;
-
-        // 2. Restore the state to it's original form
-        ((Activity)mContext).getWindow().getDecorView()
-                .setSystemUiVisibility(mOriginalSystemUiVisibility);
-        ((Activity)mContext).setRequestedOrientation(mOriginalOrientation);
-
-        // 3. Call the custom view callback
-        mCustomViewCallback.onCustomViewHidden();
-        mCustomViewCallback = null;
-
-    }
+//    @Override
+//    public void onShowCustomView(View view,
+//                                 WebChromeClient.CustomViewCallback callback) {
+//        // if a view already exists then immediately terminate the new one
+//        if (mCustomView != null) {
+//            onHideCustomView();
+//            return;
+//        }
+//
+//        // 1. Stash the current state
+//        mCustomView = view;
+//        mOriginalSystemUiVisibility = ((Activity)mContext).getWindow().getDecorView().getSystemUiVisibility();
+//        mOriginalOrientation = ((Activity)mContext).getRequestedOrientation();
+//
+//        // 2. Stash the custom view callback
+//        mCustomViewCallback = callback;
+//
+//        // 3. Add the custom view to the view hierarchy
+//        FrameLayout decor = (FrameLayout) ((Activity)mContext).getWindow().getDecorView();
+//        decor.addView(mCustomView, new FrameLayout.LayoutParams(
+//                ViewGroup.LayoutParams.MATCH_PARENT,
+//                ViewGroup.LayoutParams.MATCH_PARENT));
+//
+//
+//        // 4. Change the state of the window
+//        ((Activity)mContext).getWindow().getDecorView().setSystemUiVisibility(
+//                View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+//                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+//                        View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+//                        View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
+//                        View.SYSTEM_UI_FLAG_FULLSCREEN |
+//                        View.SYSTEM_UI_FLAG_IMMERSIVE);
+//        ((Activity)mContext).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+//    }
+//
+//    @Override
+//    public void onHideCustomView() {
+//        // 1. Remove the custom view
+//        FrameLayout decor = (FrameLayout) ((Activity)mContext).getWindow().getDecorView();
+//        decor.removeView(mCustomView);
+//        mCustomView = null;
+//
+//        // 2. Restore the state to it's original form
+//        ((Activity)mContext).getWindow().getDecorView()
+//                .setSystemUiVisibility(mOriginalSystemUiVisibility);
+//        ((Activity)mContext).setRequestedOrientation(mOriginalOrientation);
+//
+//        // 3. Call the custom view callback
+//        mCustomViewCallback.onCustomViewHidden();
+//        mCustomViewCallback = null;
+//
+//    }
 }

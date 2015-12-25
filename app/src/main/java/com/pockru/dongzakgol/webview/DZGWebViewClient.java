@@ -21,9 +21,6 @@ import java.net.URISyntaxException;
  */
 public class DZGWebViewClient extends WebViewClient {
 
-    private static final String KEY_MID = "mid";
-    private static final String KEY_ACT = "act";
-
     private Context mContext;
     private InteractWithAvtivity mListener;
 
@@ -41,13 +38,15 @@ public class DZGWebViewClient extends WebViewClient {
         if (mListener != null) {
             if (url != null) {
                 Uri uri = Uri.parse(url);
-                String mid = uri.getQueryParameter(KEY_MID);
-                String act = uri.getQueryParameter(KEY_ACT);
-                if (TextUtils.isEmpty(mid) == false) {
-                    mListener.setMid(mid);
-                }
-                if (TextUtils.isEmpty(act) == false) {
-                    mListener.setAct(act);
+                if (uri != null && uri.isOpaque() == false) {
+                    String mid = uri.getQueryParameter(UrlConts.PARAM_MID);
+                    String act = uri.getQueryParameter(UrlConts.PARAM_ACT);
+                    if (TextUtils.isEmpty(mid) == false) {
+                        mListener.setMid(mid);
+                    }
+                    if (TextUtils.isEmpty(act) == false) {
+                        mListener.setAct(act);
+                    }
                 }
             }
         }
@@ -57,7 +56,7 @@ public class DZGWebViewClient extends WebViewClient {
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
         Log.i("test", "shouldOverrideUrlLoading : " + url);
         Uri uri = Uri.parse(url);
-        if (uri != null && (uri.getScheme().equals("http") || uri.getScheme().equals("https") || uri.getScheme().equals("javascript"))) {
+        if (uri != null && (uri.getScheme().equals("http") || uri.getScheme().equals("https"))) {
             if (uri.getHost().contains(Uri.parse(UrlConts.MAIN_URL).getHost())) {
                 view.loadUrl(url);
                 return true;
@@ -77,7 +76,8 @@ public class DZGWebViewClient extends WebViewClient {
             mListener.notifyUrlLoadFinish();
         }
 
-
+//        view.loadUrl("javascript:window.JSBridge.print()");
+        view.loadUrl("javascript:window.JSBridge.print(document.querySelector(\"body > div.header_area > div.top_gnb > div > ul > li:nth-child(2) > a\"));");
     }
 
     private boolean sendOutside(String url) {
@@ -112,9 +112,10 @@ public class DZGWebViewClient extends WebViewClient {
 
     public interface InteractWithAvtivity {
 
-        public void setMid(String mid);
-        public void setAct(String act);
-
-        public void notifyUrlLoadFinish();
+        void setMid(String mid);
+        void setAct(String act);
+        void notifyUrlLoadFinish();
+        void notifyLogin(boolean isLogin);
+        void nofityImgLinkComponentOpen();
     }
 }

@@ -25,9 +25,6 @@ import com.pockru.dongzakgol.Const;
 import com.pockru.dongzakgol.R;
 import com.pockru.dongzakgol.util.DialogUtil;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-
 /**
  * Created by 래형 on 2015-12-24.
  */
@@ -41,6 +38,8 @@ public class DZGWebView extends WebView {
         super(context, attrs);
         init();
     }
+
+    public DZGWebViewChromeClient chromeClient;
 
     private void init() {
 
@@ -119,13 +118,20 @@ public class DZGWebView extends WebView {
             CookieManager.getInstance().setAcceptThirdPartyCookies(this, true);
         }
 
+        if (getContext() instanceof DZGWebViewClient.InteractWithAvtivity) {
+            addJavascriptInterface(new JSBridge((DZGWebViewClient.InteractWithAvtivity) getContext()),
+                    JSBridge.TAG);
+        }
+
         setDownloadListener(new CustomDownloadListener());
 
         setWebViewClient(new DZGWebViewClient(getContext()));
-        setWebChromeClient(new DZGWebViewChromeClient(getContext()));
+
+        chromeClient = new DZGWebViewChromeClient(getContext());
+        setWebChromeClient(chromeClient);
     }
 
-    private void imageDownload(HitTestResult result){
+    private void imageDownload(HitTestResult result) {
         DownloadManager manager = (DownloadManager) getContext().getSystemService(Context.DOWNLOAD_SERVICE);
         String url = result.getExtra();
         String fileName = createFileName(url);
@@ -137,11 +143,11 @@ public class DZGWebView extends WebView {
         manager.enqueue(request);
     }
 
-    private String createFileName(String url){
+    private String createFileName(String url) {
         String timeStamp = String.valueOf(System.currentTimeMillis());
         String ext = MimeTypeMap.getFileExtensionFromUrl(url);
         ext = TextUtils.isEmpty(ext) ? "png" : ext;
-        String fileName = Const.IMG_PREFIX_NAME + "_" + timeStamp +"."+ ext;
+        String fileName = Const.IMG_PREFIX_NAME + "_" + timeStamp + "." + ext;
         return fileName;
     }
 
@@ -158,6 +164,10 @@ public class DZGWebView extends WebView {
         mgr.setPrimaryClip(date);
     }
 
+    public DZGWebView getChildWebView(){
+        return chromeClient.getChildWebView();
+    }
+
     class CustomDownloadListener implements DownloadListener {
         public void onDownloadStart(final String url, final String userAgent, final String contentDisposition, final String mimetype, final long contentLength) {
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
@@ -165,11 +175,27 @@ public class DZGWebView extends WebView {
         }
     }
 
-    class JIFace {
+    public static class JSBridge {
+
+        public static final String TAG = JSBridge.class.getSimpleName();
+
+        DZGWebViewClient.InteractWithAvtivity mListener;
+
+        public JSBridge(DZGWebViewClient.InteractWithAvtivity listener) {
+            mListener = listener;
+        }
+
         @JavascriptInterface
         public void print(String data) {
-            data = "<html>" + data + "</html>";
-            Document doc = Jsoup.parse(data);
+//            data = "<html>" + data + "</html>";
+//            Document doc = Jsoup.parse(data);
+            if (data != null) {
+                if (data.contains(UrlConts.ACT_LOGIN)) {
+                    mListener.notifyLogin(false);
+                } else {
+                    mListener.notifyLogin(true);
+                }
+            }
 
         }
     }

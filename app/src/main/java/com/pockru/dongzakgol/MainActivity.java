@@ -1,5 +1,6 @@
 package com.pockru.dongzakgol;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -11,6 +12,9 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.webkit.ValueCallback;
+import android.webkit.WebView;
+import android.widget.TextView;
 
 import com.pockru.dongzakgol.webview.DZGWebView;
 import com.pockru.dongzakgol.webview.DZGWebViewClient;
@@ -26,6 +30,8 @@ public class MainActivity extends BaseActivity
     private FloatingActionButton mFabWrite;
     private FloatingActionButton mFabUp;
     private SwipeRefreshLayout mRefreshLayout;
+    private TextView mTvHeaderMsg;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,9 +51,12 @@ public class MainActivity extends BaseActivity
         mFabUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mWebView.setScrollY(0);
+//                mWebView.setScrollY(0);
+                mWebView.loadUrl(UrlConts.insertImageJS("http://imgnews.naver.net/image/upload/item/2015/12/25/172402405_1.jpg?type=f270_166"));
             }
         });
+
+        // <img src= "http://i.imgur.com/Q1APjZv.png" width ="100%">
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -57,6 +66,25 @@ public class MainActivity extends BaseActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        mTvHeaderMsg = (TextView) navigationView.getHeaderView(0).findViewById(R.id.tv_header_msg);
+        mTvHeaderMsg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mTvHeaderMsg.isEnabled()) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                        mWebView.evaluateJavascript(UrlConts.getLoginUrl(mWebView.getUrl()), new ValueCallback<String>() {
+                            @Override
+                            public void onReceiveValue(String value) {
+
+                            }
+                        });
+                    } else {
+                        mWebView.loadUrl(UrlConts.getLoginUrl(mWebView.getUrl()));
+                    }
+                }
+            }
+        });
 
         mRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.srl_main);
         mRefreshLayout.setColorSchemeColors(R.color.refresh_progress_1, R.color.refresh_progress_2);
@@ -179,6 +207,9 @@ public class MainActivity extends BaseActivity
         switch (act) {
             case UrlConts.ACT_WRITE:
                 fabControll(false);
+
+                // test
+
                 break;
             default:
                 fabControll(true);
@@ -189,7 +220,8 @@ public class MainActivity extends BaseActivity
     private void fabControll(boolean showWriteFab) {
         if (showWriteFab) {
             mFabUp.animate()
-                    .translationY(-(mFabWrite.getMeasuredHeight() + getResources().getDimension(R.dimen.fab_margin)))
+                    .translationY(-(mFabWrite.getMeasuredHeight() +
+                            getResources().getDimensionPixelOffset(R.dimen.fab_margin)))
                     .start();
             mFabWrite.show();
         } else {
@@ -203,5 +235,17 @@ public class MainActivity extends BaseActivity
     @Override
     public void notifyUrlLoadFinish() {
         mRefreshLayout.setRefreshing(false);
+    }
+
+    @Override
+    public void notifyLogin(boolean isLogin) {
+        mTvHeaderMsg.setEnabled(!isLogin);
+    }
+
+    @Override
+    public void nofityImgLinkComponentOpen() {
+        // TODO test
+//        WebView childWebView = mWebView.getChildWebView();
+        mWebView.loadUrl("javascript:document.querySelector(\"#editor\").innerHTML = '<img src =\"http://i.imgur.com/Q1APjZv.png\">';");
     }
 }
