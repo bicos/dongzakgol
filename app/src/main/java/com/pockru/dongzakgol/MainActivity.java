@@ -1,5 +1,7 @@
 package com.pockru.dongzakgol;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -16,9 +18,20 @@ import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import android.widget.TextView;
 
+import com.pockru.dongzakgol.module.imgur.helpers.DocumentHelper;
+import com.pockru.dongzakgol.module.imgur.helpers.IntentHelper;
+import com.pockru.dongzakgol.module.imgur.imgurmodel.ImageResponse;
+import com.pockru.dongzakgol.module.imgur.imgurmodel.Upload;
+import com.pockru.dongzakgol.module.imgur.services.UploadService;
 import com.pockru.dongzakgol.webview.DZGWebView;
 import com.pockru.dongzakgol.webview.DZGWebViewClient;
 import com.pockru.dongzakgol.webview.UrlConts;
+
+import java.io.File;
+
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 public class MainActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener, DZGWebViewClient.InteractWithAvtivity {
@@ -51,17 +64,8 @@ public class MainActivity extends BaseActivity
         mFabUploadImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                mWebView.setScrollY(0);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                    mWebView.evaluateJavascript(UrlConts.insertImageJS("http://i.imgur.com/Q1APjZv.png"), new ValueCallback<String>() {
-                        @Override
-                        public void onReceiveValue(String value) {
-
-                        }
-                    });
-                } else {
-                    mWebView.loadUrl(UrlConts.insertImageJS("http://i.imgur.com/Q1APjZv.png"));
-                }
+                // 이미지 픽업 위해 갤러리 호출
+                IntentHelper.chooseFileIntent(MainActivity.this);
             }
         });
 
@@ -169,6 +173,67 @@ public class MainActivity extends BaseActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+            case REQ_FILECHOOSER_FOR_IMGUR:
+                if (resultCode != RESULT_OK) return;
+
+                Uri returnUri = data.getData();
+                String filePath = DocumentHelper.getPath(this, returnUri);
+                //Safety check to prevent null pointer exception
+                if (filePath == null || filePath.isEmpty()) return;
+                File chosenFile = new File(filePath);
+
+                Upload upload = createUpload(chosenFile);
+
+                /*
+                  Start upload
+                 */
+                new UploadService(this).Execute(upload, new Callback<ImageResponse>() {
+                    @Override
+                    public void success(ImageResponse imageResponse, Response response) {
+                        insertIntoImg(imageResponse);
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+
+                    }
+                });
+
+                break;
+
+        }
+    }
+
+    private Upload createUpload(File image) {
+        Upload upload = new Upload();
+
+        upload.image = image;
+        upload.title = "";
+        upload.description = "";
+
+        return upload;
+    }
+
+    private void insertIntoImg(ImageResponse imageResponse) {
+        if (imageResponse == null) return;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            mWebView.evaluateJavascript(UrlConts.insertImageJS(imageResponse.data.link), new ValueCallback<String>() {
+                @Override
+                public void onReceiveValue(String value) {
+
+                }
+            });
+        } else {
+            mWebView.loadUrl(UrlConts.insertImageJS(imageResponse.data.link));
+        }
     }
 
     private static final String PREFIX_BOARD = "board";

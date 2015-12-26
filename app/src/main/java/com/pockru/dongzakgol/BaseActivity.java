@@ -15,10 +15,8 @@ import com.pockru.dongzakgol.webview.UrlConts;
 public class BaseActivity extends AppCompatActivity {
 
     // onActivityResult값
-    public static final int REQ_CODE_GET_PHOTO = 100;
     public static final int REQ_FILECHOOSER = 102;
-    public static final int REQ_CODE_TUMBLR_AUTH = 104;
-    public static final int REQ_CODE_DETAIL_ARTICLE = 103;
+    public static final int REQ_FILECHOOSER_FOR_IMGUR = 103;
     public String mCameraPhotoPath;
 
     @Override
@@ -35,11 +33,6 @@ public class BaseActivity extends AppCompatActivity {
 
         switch (requestCode) {
             case REQ_FILECHOOSER:
-//                Uri result = data == null || resultCode != RESULT_OK ? null : data.getData();
-//                if (mUploadMessage != null) {
-//                    mUploadMessage.onReceiveValue(result);
-//                    mUploadMessage = null;
-//                }
 
                 Uri[] results = null;
 

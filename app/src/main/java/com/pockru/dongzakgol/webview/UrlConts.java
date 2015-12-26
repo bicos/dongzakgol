@@ -77,7 +77,7 @@ public class UrlConts {
         return uri.toString();
     }
 
-    public static final String INSERT_INTO_JS = "javascript:(function(){document.getElementById(\"editor\").innerHTML = '<img src= \"%s\">'})()";
+    public static final String INSERT_INTO_JS = "javascript:(function(){document.getElementById(\"editor\").innerHTML += '<br/><img src= \"%s\"><br/>'})()";
 
     public static String insertImageJS(String imgLink) {
         return String.format(INSERT_INTO_JS, imgLink);
