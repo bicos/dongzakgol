@@ -7,6 +7,10 @@ public class Const {
 
     public static final String IMG_PREFIX_NAME = "dongzakgol_img";
 
+
+    public static final String FLAG_CHECK_LOGIN = "10";
+    public static final String FLAG_MAIN_LIST = "11";
+
     // imgur
 
     /*
@@ -26,6 +30,7 @@ public class Const {
       Redirect URL for android.
      */
     public static final String MY_IMGUR_REDIRECT_URL = "http://android";
+
 
     /*
       Client Auth

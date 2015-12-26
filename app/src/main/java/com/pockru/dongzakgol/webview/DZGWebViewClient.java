@@ -14,9 +14,12 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
+import com.pockru.dongzakgol.Const;
 import com.pockru.dongzakgol.R;
+import com.pockru.dongzakgol.model.Category;
 
 import java.net.URISyntaxException;
+import java.util.List;
 
 /**
  * Created by 래형 on 2015-12-24.
@@ -36,6 +39,9 @@ public class DZGWebViewClient extends WebViewClient {
     @Override
     public void onPageStarted(WebView view, String url, Bitmap favicon) {
         super.onPageStarted(view, url, favicon);
+        if (mListener != null) {
+            mListener.notifyUrlLoadStart();
+        }
 
         if (mListener != null) {
             if (url != null) {
@@ -76,17 +82,11 @@ public class DZGWebViewClient extends WebViewClient {
         if (mListener != null) {
             mListener.notifyUrlLoadFinish();
         }
-
-//        view.loadUrl("javascript:window.JSBridge.print()");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            view.evaluateJavascript(UrlConts.CHECK_LOGIN_JS, new ValueCallback<String>() {
-                @Override
-                public void onReceiveValue(String value) {
-
-                }
-            });
-        } else {
-            view.loadUrl(UrlConts.CHECK_LOGIN_JS);
+        if (view instanceof DZGWebView) {
+            ((DZGWebView)view).loadJavaScript(UrlConts.getHtml(Const.FLAG_CHECK_LOGIN));
+        }
+        if (url.contains(UrlConts.MAIN_MID)) {
+            ((DZGWebView)view).loadJavaScript(UrlConts.getHtml(Const.FLAG_MAIN_LIST));
         }
     }
 
@@ -126,6 +126,7 @@ public class DZGWebViewClient extends WebViewClient {
         void setAct(String act);
         void notifyUrlLoadFinish();
         void notifyLogin(boolean isLogin);
-        void nofityImgLinkComponentOpen();
+        void notifyUrlLoadStart();
+        void setCateList(List<Category> list);
     }
 }

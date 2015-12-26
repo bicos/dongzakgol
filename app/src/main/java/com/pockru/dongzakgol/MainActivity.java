@@ -6,6 +6,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.view.menu.MenuBuilder;
+import android.support.v7.view.menu.SubMenuBuilder;
+import android.util.Log;
+import android.view.SubMenu;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -17,7 +21,9 @@ import android.view.MenuItem;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.pockru.dongzakgol.model.Category;
 import com.pockru.dongzakgol.module.imgur.helpers.DocumentHelper;
 import com.pockru.dongzakgol.module.imgur.helpers.IntentHelper;
 import com.pockru.dongzakgol.module.imgur.imgurmodel.ImageResponse;
@@ -28,6 +34,7 @@ import com.pockru.dongzakgol.webview.DZGWebViewClient;
 import com.pockru.dongzakgol.webview.UrlConts;
 
 import java.io.File;
+import java.util.List;
 
 import retrofit.Callback;
 import retrofit.RetrofitError;
@@ -44,6 +51,8 @@ public class MainActivity extends BaseActivity
     private FloatingActionButton mFabUploadImg;
     private SwipeRefreshLayout mRefreshLayout;
     private TextView mTvHeaderMsg;
+
+    private NavigationView navigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +84,7 @@ public class MainActivity extends BaseActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         mTvHeaderMsg = (TextView) navigationView.getHeaderView(0).findViewById(R.id.tv_header_msg);
@@ -99,7 +108,7 @@ public class MainActivity extends BaseActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            if(mWebView.canGoBack()) {
+            if (mWebView.canGoBack()) {
                 mWebView.goBack();
             } else {
                 super.onBackPressed();
@@ -168,6 +177,11 @@ public class MainActivity extends BaseActivity
             case R.id.nav_show_my_info:
                 mWebView.loadUrl(UrlConts.getMyInfoUrlUrl(mMid));
                 break;
+            default:
+                if (mList.size() > item.getItemId()) {
+                    mWebView.loadUrl(UrlConts.MAIN_URL + mList.get(item.getItemId()).link);
+                }
+                break;
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -197,12 +211,13 @@ public class MainActivity extends BaseActivity
                 new UploadService(this).Execute(upload, new Callback<ImageResponse>() {
                     @Override
                     public void success(ImageResponse imageResponse, Response response) {
+                        Toast.makeText(getApplicationContext(), "이미지 업로드를 성공하였습니다.", Toast.LENGTH_LONG).show();
                         insertIntoImg(imageResponse);
                     }
 
                     @Override
                     public void failure(RetrofitError error) {
-
+                        Toast.makeText(getApplicationContext(), "이미지 업로드를 실패하였습니다.", Toast.LENGTH_LONG).show();
                     }
                 });
 
@@ -223,17 +238,7 @@ public class MainActivity extends BaseActivity
 
     private void insertIntoImg(ImageResponse imageResponse) {
         if (imageResponse == null) return;
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            mWebView.evaluateJavascript(UrlConts.insertImageJS(imageResponse.data.link), new ValueCallback<String>() {
-                @Override
-                public void onReceiveValue(String value) {
-
-                }
-            });
-        } else {
-            mWebView.loadUrl(UrlConts.insertImageJS(imageResponse.data.link));
-        }
+        mWebView.loadJavaScript(UrlConts.insertImageJS(imageResponse.data.link));
     }
 
     private static final String PREFIX_BOARD = "board";
@@ -271,21 +276,49 @@ public class MainActivity extends BaseActivity
     }
 
     @Override
+    public void notifyUrlLoadStart() {
+        mRefreshLayout.setRefreshing(true);
+    }
+
+    List<Category> mList;
+
+    @Override
+    public void setCateList(final List<Category> list) {
+        Log.i("test", "list : "+list);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (navigationView != null) {
+                    SubMenu menu = navigationView.getMenu().getItem(0).getSubMenu();
+                    int id = 0;
+                    if (menu.size() == 0) {
+                        mList = list;
+                        for (Category category : list) {
+                            menu.add(0, id, id, category.name);
+                            id++;
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
     public void notifyUrlLoadFinish() {
         mRefreshLayout.setRefreshing(false);
     }
 
     @Override
-    public void notifyLogin(boolean isLogin) {
-        if (isLogin) {
-            mTvHeaderMsg.setText(R.string.inform_msg_logout);
-        } else {
-            mTvHeaderMsg.setText(R.string.inform_msg_login);
-        }
-    }
-
-    @Override
-    public void nofityImgLinkComponentOpen() {
-
+    public void notifyLogin(final boolean isLogin) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (isLogin) {
+                    mTvHeaderMsg.setText(R.string.inform_msg_logout);
+                } else {
+                    mTvHeaderMsg.setText(R.string.inform_msg_login);
+                }
+            }
+        });
     }
 }

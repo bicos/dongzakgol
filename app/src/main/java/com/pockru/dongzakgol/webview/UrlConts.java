@@ -1,15 +1,14 @@
 package com.pockru.dongzakgol.webview;
 
 import android.net.Uri;
-
-import java.util.Map;
+import android.util.Log;
 
 /**
  * Created by 래형 on 2015-12-24.
  */
 public class UrlConts {
 
-    public static final String MAIN_URL = "http://sungyun4463.cafe24.com";
+    public static final String MAIN_URL = "http://dzgol.net";
     public static final String MAIN_PATH = "index.php";
 
     public static final String LOGIN_URL = MAIN_URL + "/index.php?mid=%s&act=dispMemberLoginForm";
@@ -43,8 +42,8 @@ public class UrlConts {
 
     public static final String MAIN_MID = "page_dhbZ41";
 
-    //document.querySelector("#top_mn")
-    public static final java.lang.String CHECK_LOGIN_JS = "javascript:window.JSBridge.print(document.querySelector(\"#top_mn\"));";
+    //document.querySelector("")
+//    public static final java.lang.String CHECK_LOGIN_JS = "javascript:window.JSBridge.print(document.querySelector(\"#top_mn\"));";
 
     public static final String getMainUrl() {
         Uri uri = Uri.parse(MAIN_URL);
@@ -81,6 +80,14 @@ public class UrlConts {
 
     public static String insertImageJS(String imgLink) {
         return String.format(INSERT_INTO_JS, imgLink);
+    }
+
+    public static final String GET_HTML_JS = "javascript:window.JSBridge.print('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>','%s');";
+
+    public static String getHtml(String tag){
+        String js = String.format(GET_HTML_JS, tag);
+        Log.i("test", js);
+        return js;
     }
 
 }

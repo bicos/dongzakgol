@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group android:checkableBehavior="single">
-        <item
-            android:id="@+id/nav_camera"
-            android:title="준비중입니다." />
-    </group>
+    <item android:title="게시판 목록">
+        <menu>
+
+        </menu>
+    </item>
 
     <item android:title="회원 관련 항목">
         <menu>

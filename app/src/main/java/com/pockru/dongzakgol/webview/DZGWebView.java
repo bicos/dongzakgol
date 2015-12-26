@@ -18,18 +18,29 @@ import android.webkit.CookieManager;
 import android.webkit.DownloadListener;
 import android.webkit.JavascriptInterface;
 import android.webkit.MimeTypeMap;
+import android.webkit.ValueCallback;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Toast;
 
 import com.pockru.dongzakgol.Const;
 import com.pockru.dongzakgol.R;
+import com.pockru.dongzakgol.model.Category;
 import com.pockru.dongzakgol.util.DialogUtil;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by 래형 on 2015-12-24.
  */
 public class DZGWebView extends WebView {
+
     public DZGWebView(Context context) {
         super(context);
         init();
@@ -169,6 +180,19 @@ public class DZGWebView extends WebView {
         return chromeClient.getChildWebView();
     }
 
+    //#btn_more > ul
+    public void loadJavaScript(String javascript) {
+        loadJavaScript(javascript, null);
+    }
+
+    public void loadJavaScript(String javascript, ValueCallback callback) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            evaluateJavascript(javascript, callback);
+        } else {
+            loadUrl(javascript);
+        }
+    }
+
     class CustomDownloadListener implements DownloadListener {
         public void onDownloadStart(final String url, final String userAgent, final String contentDisposition, final String mimetype, final long contentLength) {
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
@@ -187,17 +211,41 @@ public class DZGWebView extends WebView {
         }
 
         @JavascriptInterface
-        public void print(String data) {
-//            data = "<html>" + data + "</html>";
-//            Document doc = Jsoup.parse(data);
-            Log.i("test", "data : "+data);
-            if (data != null) {
-                if (data.contains(UrlConts.ACT_LOGIN)) {
-                    mListener.notifyLogin(false);
-                } else {
-                    mListener.notifyLogin(true);
-                }
+        public void print(String data, String flag) {
+
+            if (data== null) return;
+
+            switch (flag) {
+                case Const.FLAG_CHECK_LOGIN:
+                        if (data.contains(UrlConts.ACT_LOGIN)) {
+                            mListener.notifyLogin(false);
+                        } else {
+                            mListener.notifyLogin(true);
+                        }
+                    break;
+                case Const.FLAG_MAIN_LIST:
+                    Document doc = Jsoup.parse(data);
+                    if (doc != null) {
+                        try{
+                            Elements elements = doc.select("#btn_more > ul").get(0).getElementsByTag("a");
+                            List<Category> list = new ArrayList<>();
+                            Element element;
+                            for (int i = 0; i< elements.size(); i++) {
+                                element = elements.get(i);
+                                Category cate = new Category(element.text(), element.attr("href"));
+                                list.add(cate);
+                            }
+
+                            if (list.size() > 0) {
+                                mListener.setCateList(list);
+                            }
+                        }catch(Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    break;
             }
+
 
         }
     }
