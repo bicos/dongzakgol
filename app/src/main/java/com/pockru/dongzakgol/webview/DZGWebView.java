@@ -215,6 +215,28 @@ public class DZGWebView extends WebView {
         referer = url;
     }
 
+    public static interface PageScrollState {
+        void onStateUp();
+        void onStateDown();
+    }
+
+    private PageScrollState mPageScrollState;
+
+    public void setOnPageScrollSateListener(PageScrollState listener) {
+        mPageScrollState = listener;
+    }
+
+    @Override
+    protected void onScrollChanged(int l, int t, int oldl, int oldt) {
+        super.onScrollChanged(l, t, oldl, oldt);
+
+        if (t - oldt < 0) {
+            mPageScrollState.onStateUp();
+        } else if (t - oldt > 0) {
+            mPageScrollState.onStateDown();
+        }
+    }
+
     class CustomDownloadListener implements DownloadListener {
         public void onDownloadStart(final String url, final String userAgent, final String contentDisposition, final String mimetype, final long contentLength) {
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));

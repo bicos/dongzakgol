@@ -42,7 +42,7 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 
 public class MainActivity extends BaseActivity
-        implements NavigationView.OnNavigationItemSelectedListener, DZGWebViewClient.InteractWithAvtivity {
+        implements NavigationView.OnNavigationItemSelectedListener, DZGWebViewClient.InteractWithAvtivity, DZGWebView.PageScrollState {
 
     private DZGWebView mWebView;
 
@@ -113,6 +113,7 @@ public class MainActivity extends BaseActivity
         mAdView.loadAd(adRequestBuilder.build());
 
         mWebView = (DZGWebView) findViewById(R.id.webview);
+        mWebView.setOnPageScrollSateListener(this);
         mWebView.loadUrl(UrlConts.getMainUrl());
     }
 
@@ -346,5 +347,15 @@ public class MainActivity extends BaseActivity
                 }
             }
         });
+    }
+
+    @Override
+    public void onStateUp() {
+        fabControll(true);
+    }
+
+    @Override
+    public void onStateDown() {
+        fabControll(false);
     }
 }
