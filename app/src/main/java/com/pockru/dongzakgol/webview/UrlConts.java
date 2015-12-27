@@ -8,6 +8,8 @@ import android.util.Log;
  */
 public class UrlConts {
 
+    public static final String UA_APP = "app_and";
+
     public static final String MAIN_URL = "http://dzgol.net";
     public static final String MAIN_PATH = "index.php";
 
@@ -86,7 +88,6 @@ public class UrlConts {
 
     public static String getHtml(String tag){
         String js = String.format(GET_HTML_JS, tag);
-        Log.i("test", js);
         return js;
     }
 

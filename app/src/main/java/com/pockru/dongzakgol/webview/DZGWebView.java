@@ -24,6 +24,7 @@ import android.webkit.WebView;
 import android.widget.Toast;
 
 import com.pockru.dongzakgol.Const;
+import com.pockru.dongzakgol.DzkApplication;
 import com.pockru.dongzakgol.R;
 import com.pockru.dongzakgol.model.Category;
 import com.pockru.dongzakgol.util.DialogUtil;
@@ -34,7 +35,9 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by 래형 on 2015-12-24.
@@ -125,6 +128,8 @@ public class DZGWebView extends WebView {
         // Log.i(TAG, "databasePath : "+databasePath);
         getSettings().setDatabasePath(databasePath);
 
+        getSettings().setUserAgentString(getSettings().getUserAgentString() + "_" + UrlConts.UA_APP);
+
         CookieManager.getInstance().setAcceptCookie(true);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             CookieManager.getInstance().setAcceptThirdPartyCookies(this, true);
@@ -193,6 +198,23 @@ public class DZGWebView extends WebView {
         }
     }
 
+    private String referer = UrlConts.MAIN_URL;
+
+    // accept-encoding:gzip, deflate, sdch
+    // referer:http://www.dzgol.net/
+    private Map<String, String> getDefaultAdditionalHeader(){
+        Map<String, String> additionalHeader = new HashMap<>();
+        additionalHeader.put("accept-encoding ", "gzip, deflate, sdch");
+        additionalHeader.put("referer", referer);
+        return additionalHeader;
+    }
+
+    @Override
+    public void loadUrl(String url) {
+        loadUrl(url , getDefaultAdditionalHeader());
+        referer = url;
+    }
+
     class CustomDownloadListener implements DownloadListener {
         public void onDownloadStart(final String url, final String userAgent, final String contentDisposition, final String mimetype, final long contentLength) {
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
@@ -212,7 +234,6 @@ public class DZGWebView extends WebView {
 
         @JavascriptInterface
         public void print(String data, String flag) {
-
             if (data== null) return;
 
             switch (flag) {
@@ -224,29 +245,29 @@ public class DZGWebView extends WebView {
                         }
                     break;
                 case Const.FLAG_MAIN_LIST:
-                    Document doc = Jsoup.parse(data);
-                    if (doc != null) {
-                        try{
-                            Elements elements = doc.select("#btn_more > ul").get(0).getElementsByTag("a");
-                            List<Category> list = new ArrayList<>();
-                            Element element;
-                            for (int i = 0; i< elements.size(); i++) {
-                                element = elements.get(i);
-                                Category cate = new Category(element.text(), element.attr("href"));
-                                list.add(cate);
-                            }
+                    if (DzkApplication.initCateList.get() == false) {
+                        Document doc = Jsoup.parse(data);
+                        if (doc != null) {
+                            try {
+                                Elements elements = doc.select("#btn_more > ul").get(0).getElementsByTag("a");
+                                List<Category> list = new ArrayList<>();
+                                Element element;
+                                for (int i = 0; i < elements.size(); i++) {
+                                    element = elements.get(i);
+                                    Category cate = new Category(element.text(), element.attr("href"));
+                                    list.add(cate);
+                                }
 
-                            if (list.size() > 0) {
-                                mListener.setCateList(list);
+                                if (list.size() > 0) {
+                                    mListener.setCateList(list);
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
-                        }catch(Exception e) {
-                            e.printStackTrace();
                         }
                     }
                     break;
             }
-
-
         }
     }
 }

@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.webkit.ValueCallback;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.pockru.dongzakgol.webview.UrlConts;
 
 /**
@@ -19,11 +21,19 @@ public class BaseActivity extends AppCompatActivity {
     public static final int REQ_FILECHOOSER_FOR_IMGUR = 103;
     public String mCameraPhotoPath;
 
+    private Tracker mTracker;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        DzkApplication application = (DzkApplication) getApplication();
+        mTracker = application.getDefaultTracker();
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
     }
 
     public ValueCallback<Uri> mUploadMessage;
@@ -59,5 +69,10 @@ public class BaseActivity extends AppCompatActivity {
             default:
                 break;
         }
+    }
+
+    public void sendEvent(String category, String action, String label){
+        mTracker.send(new HitBuilders.EventBuilder(category, action)
+                .setLabel(label).build());
     }
 }

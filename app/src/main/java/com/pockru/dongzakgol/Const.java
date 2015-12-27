@@ -31,6 +31,17 @@ public class Const {
      */
     public static final String MY_IMGUR_REDIRECT_URL = "http://android";
 
+    /**
+     * google analytics tracker id
+     */
+    public static final String TRACKER_ID = "UA-57864303-3";
+
+
+    /**
+     * admob unit id
+     */
+    public static final String AD_UNIT_ID = "ca-app-pub-4329801228567987/1247000757";
+
 
     /*
       Client Auth

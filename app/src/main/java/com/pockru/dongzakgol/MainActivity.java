@@ -18,11 +18,12 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.webkit.ValueCallback;
-import android.webkit.WebView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
 import com.pockru.dongzakgol.model.Category;
 import com.pockru.dongzakgol.module.imgur.helpers.DocumentHelper;
 import com.pockru.dongzakgol.module.imgur.helpers.IntentHelper;
@@ -53,6 +54,8 @@ public class MainActivity extends BaseActivity
     private TextView mTvHeaderMsg;
 
     private NavigationView navigationView;
+
+    private AdView mAdView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,6 +103,15 @@ public class MainActivity extends BaseActivity
             }
         });
 
+        mAdView = new AdView(this);
+        mAdView.setAdSize(AdSize.BANNER);
+        mAdView.setAdUnitId(Const.AD_UNIT_ID);
+
+        // Create an ad request.
+        AdRequest.Builder adRequestBuilder = new AdRequest.Builder();
+        adRequestBuilder.setGender(AdRequest.GENDER_FEMALE);
+        mAdView.loadAd(adRequestBuilder.build());
+
         mWebView = (DZGWebView) findViewById(R.id.webview);
         mWebView.loadUrl(UrlConts.getMainUrl());
     }
@@ -125,6 +137,7 @@ public class MainActivity extends BaseActivity
     public void onPause() {
         super.onPause();
         mWebView.onPause();
+        mAdView.pause();
     }
 
     /**
@@ -133,6 +146,7 @@ public class MainActivity extends BaseActivity
     @Override
     public void onResume() {
         mWebView.onResume();
+        mAdView.resume();
         super.onResume();
     }
 
@@ -144,6 +158,10 @@ public class MainActivity extends BaseActivity
         if (mWebView != null) {
             mWebView.destroy();
             mWebView = null;
+        }
+        if (mAdView != null) {
+            mAdView.destroy();
+            mAdView = null;
         }
         super.onDestroy();
     }
@@ -247,6 +265,10 @@ public class MainActivity extends BaseActivity
 
     @Override
     public void setMid(String mid) {
+        if (mid != null && mMid.contentEquals(mid) == false) {
+            sendEvent("category", mid, "");
+        }
+
         mMid = mid;
         if (mid.startsWith(PREFIX_BOARD)) {
             fabControll(true);
@@ -286,7 +308,6 @@ public class MainActivity extends BaseActivity
 
     @Override
     public void setCateList(final List<Category> list) {
-        Log.i("test", "list : "+list);
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -300,7 +321,10 @@ public class MainActivity extends BaseActivity
                             id++;
                         }
                     }
+                    navigationView.addHeaderView(mAdView);
                 }
+
+                DzkApplication.initCateList.set(true);
             }
         });
     }

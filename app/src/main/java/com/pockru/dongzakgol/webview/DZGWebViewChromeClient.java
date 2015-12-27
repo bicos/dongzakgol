@@ -56,7 +56,6 @@ public class DZGWebViewChromeClient extends WebChromeClient{
     }
 
     public void openFileChooser(ValueCallback<Uri> uploadMsg) {
-        Log.i("test", "openFileChooser called");
         ((BaseActivity)mContext).mUploadMessage = uploadMsg;
         Intent i = new Intent(Intent.ACTION_GET_CONTENT);
         i.addCategory(Intent.CATEGORY_OPENABLE);

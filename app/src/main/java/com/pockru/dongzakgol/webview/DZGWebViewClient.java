@@ -5,11 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
-import android.webkit.CookieManager;
-import android.webkit.ValueCallback;
+import android.webkit.HttpAuthHandler;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
@@ -42,27 +40,10 @@ public class DZGWebViewClient extends WebViewClient {
         if (mListener != null) {
             mListener.notifyUrlLoadStart();
         }
-
-        if (mListener != null) {
-            if (url != null) {
-                Uri uri = Uri.parse(url);
-                if (uri != null && uri.isOpaque() == false) {
-                    String mid = uri.getQueryParameter(UrlConts.PARAM_MID);
-                    String act = uri.getQueryParameter(UrlConts.PARAM_ACT);
-                    if (TextUtils.isEmpty(mid) == false) {
-                        mListener.setMid(mid);
-                    }
-                    if (TextUtils.isEmpty(act) == false) {
-                        mListener.setAct(act);
-                    }
-                }
-            }
-        }
     }
 
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
-        Log.i("test", "shouldOverrideUrlLoading : " + url);
         Uri uri = Uri.parse(url);
         if (uri != null && (uri.getScheme().equals("http") || uri.getScheme().equals("https") || uri.getScheme().equals("javascript"))) {
             if (uri.getHost().contains(Uri.parse(UrlConts.MAIN_URL).getHost())) {
@@ -87,6 +68,22 @@ public class DZGWebViewClient extends WebViewClient {
         }
         if (url.contains(UrlConts.MAIN_MID)) {
             ((DZGWebView)view).loadJavaScript(UrlConts.getHtml(Const.FLAG_MAIN_LIST));
+        }
+
+        if (mListener != null) {
+            if (url != null) {
+                Uri uri = Uri.parse(url);
+                if (uri != null && uri.isOpaque() == false) {
+                    String mid = uri.getQueryParameter(UrlConts.PARAM_MID);
+                    String act = uri.getQueryParameter(UrlConts.PARAM_ACT);
+                    if (TextUtils.isEmpty(mid) == false) {
+                        mListener.setMid(mid);
+                    }
+                    if (TextUtils.isEmpty(act) == false) {
+                        mListener.setAct(act);
+                    }
+                }
+            }
         }
     }
 
