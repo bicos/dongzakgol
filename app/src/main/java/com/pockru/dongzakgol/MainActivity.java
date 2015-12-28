@@ -1,14 +1,13 @@
 package com.pockru.dongzakgol;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.view.menu.MenuBuilder;
-import android.support.v7.view.menu.SubMenuBuilder;
-import android.util.Log;
 import android.view.SubMenu;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -18,6 +17,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,6 +30,8 @@ import com.pockru.dongzakgol.module.imgur.helpers.IntentHelper;
 import com.pockru.dongzakgol.module.imgur.imgurmodel.ImageResponse;
 import com.pockru.dongzakgol.module.imgur.imgurmodel.Upload;
 import com.pockru.dongzakgol.module.imgur.services.UploadService;
+import com.pockru.dongzakgol.util.UiUtils;
+import com.pockru.dongzakgol.util.Utils;
 import com.pockru.dongzakgol.webview.DZGWebView;
 import com.pockru.dongzakgol.webview.DZGWebViewClient;
 import com.pockru.dongzakgol.webview.UrlConts;
@@ -48,6 +50,7 @@ public class MainActivity extends BaseActivity
 
     private String mMid = UrlConts.MAIN_MID;
 
+    private FloatingActionButton mFabMoveTop;
     private FloatingActionButton mFabWrite;
     private FloatingActionButton mFabUploadImg;
     private SwipeRefreshLayout mRefreshLayout;
@@ -65,6 +68,14 @@ public class MainActivity extends BaseActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("");
         setSupportActionBar(toolbar);
+
+        mFabMoveTop = (FloatingActionButton) findViewById(R.id.fab_top);
+        mFabMoveTop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mWebView.scrollTo(0, 0);
+            }
+        });
 
         mFabWrite = (FloatingActionButton) findViewById(R.id.fab_write);
         mFabWrite.setOnClickListener(new View.OnClickListener() {
@@ -137,7 +148,9 @@ public class MainActivity extends BaseActivity
     @Override
     public void onPause() {
         super.onPause();
-        mWebView.onPause();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            mWebView.onPause();
+        }
         mAdView.pause();
     }
 
@@ -146,7 +159,9 @@ public class MainActivity extends BaseActivity
      */
     @Override
     public void onResume() {
-        mWebView.onResume();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            mWebView.onResume();
+        }
         mAdView.resume();
         super.onResume();
     }
@@ -170,7 +185,7 @@ public class MainActivity extends BaseActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.main, menu);
+        getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
@@ -182,7 +197,17 @@ public class MainActivity extends BaseActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_finish) {
+            new AlertDialog.Builder(MainActivity.this)
+                    .setMessage("앱을 종료하시겠습니까?")
+                    .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+                    })
+                    .setNegativeButton("취소", null)
+                    .show();
             return true;
         }
 
@@ -294,8 +319,10 @@ public class MainActivity extends BaseActivity
 
     private void fabControll(boolean showWriteFab) {
         if (showWriteFab) {
+            mFabMoveTop.show();
             mFabWrite.show();
         } else {
+            mFabMoveTop.hide();
             mFabWrite.hide();
         }
     }
@@ -322,10 +349,13 @@ public class MainActivity extends BaseActivity
                             id++;
                         }
                     }
+                    if (menu.size() > 0) {
+                        DzkApplication.initCateList.set(true);
+                    }
                     navigationView.addHeaderView(mAdView);
                 }
 
-                DzkApplication.initCateList.set(true);
+
             }
         });
     }
@@ -351,11 +381,11 @@ public class MainActivity extends BaseActivity
 
     @Override
     public void onStateUp() {
-        fabControll(true);
+//        fabControll(true);
     }
 
     @Override
     public void onStateDown() {
-        fabControll(false);
+//        fabControll(false);
     }
 }
