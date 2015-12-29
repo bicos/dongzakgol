@@ -349,14 +349,9 @@ public class MainActivity extends BaseActivity
                             menu.add(0, id, id, category.name);
                             id++;
                         }
+                        navigationView.addHeaderView(mAdView);
                     }
-                    if (menu.size() > 0) {
-                        DzkApplication.initCateList.set(true);
-                    }
-                    navigationView.addHeaderView(mAdView);
                 }
-
-
             }
         });
     }

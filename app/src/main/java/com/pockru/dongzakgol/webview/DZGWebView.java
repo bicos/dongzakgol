@@ -22,6 +22,7 @@ import android.webkit.ValueCallback;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Toast;
+import android.widget.ZoomButtonsController;
 
 import com.pockru.dongzakgol.Const;
 import com.pockru.dongzakgol.DzkApplication;
@@ -34,6 +35,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -115,7 +117,9 @@ public class DZGWebView extends WebView {
         getSettings().setPluginState(WebSettings.PluginState.ON);
         getSettings().setJavaScriptEnabled(true);
         getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
-        getSettings().setDisplayZoomControls(false);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            getSettings().setDisplayZoomControls(false);
+        }
         // mWebView.getSettings().setSupportMultipleWindows(true);
 
         // mWebView.getSettings().setLoadWithOverviewMode(true);
@@ -156,7 +160,9 @@ public class DZGWebView extends WebView {
         request.setTitle("사진 다운로드");
         request.setDescription(url);
         request.setDestinationInExternalPublicDir(Environment.DIRECTORY_PICTURES, fileName);
-        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        }
         manager.enqueue(request);
     }
 
@@ -169,19 +175,25 @@ public class DZGWebView extends WebView {
     }
 
     private void saveUrl(String extra) {
-        ClipboardManager mgr = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData date = ClipData.newPlainText(extra, extra);
-        mgr.addPrimaryClipChangedListener(new ClipboardManager.OnPrimaryClipChangedListener() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            ClipboardManager mgr = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+            ClipData date = ClipData.newPlainText(extra, extra);
+            mgr.addPrimaryClipChangedListener(new ClipboardManager.OnPrimaryClipChangedListener() {
 
-            @Override
-            public void onPrimaryClipChanged() {
-                Toast.makeText(getContext(), getContext().getString(R.string.msg_save_link_url), Toast.LENGTH_SHORT).show();
-            }
-        });
-        mgr.setPrimaryClip(date);
+                @Override
+                public void onPrimaryClipChanged() {
+                    Toast.makeText(getContext().getApplicationContext(), getContext().getString(R.string.msg_save_link_url), Toast.LENGTH_SHORT).show();
+                }
+            });
+            mgr.setPrimaryClip(date);
+        } else {
+            android.text.ClipboardManager mgr = (android.text.ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+            mgr.setText(extra);
+            Toast.makeText(getContext().getApplicationContext(), getContext().getString(R.string.msg_save_link_url), Toast.LENGTH_SHORT).show();
+        }
     }
 
-    public DZGWebView getChildWebView(){
+    public DZGWebView getChildWebView() {
         return chromeClient.getChildWebView();
     }
 
@@ -202,7 +214,7 @@ public class DZGWebView extends WebView {
 
     // accept-encoding:gzip, deflate, sdch
     // referer:http://www.dzgol.net/
-    private Map<String, String> getDefaultAdditionalHeader(){
+    private Map<String, String> getDefaultAdditionalHeader() {
         Map<String, String> additionalHeader = new HashMap<>();
         additionalHeader.put("accept-encoding ", "gzip, deflate, sdch");
         additionalHeader.put("referer", referer);
@@ -211,12 +223,13 @@ public class DZGWebView extends WebView {
 
     @Override
     public void loadUrl(String url) {
-        loadUrl(url , getDefaultAdditionalHeader());
+        loadUrl(url, getDefaultAdditionalHeader());
         referer = url;
     }
 
     public static interface PageScrollState {
         void onStateUp();
+
         void onStateDown();
     }
 
@@ -256,36 +269,34 @@ public class DZGWebView extends WebView {
 
         @JavascriptInterface
         public void print(String data, String flag) {
-            if (data== null) return;
+            if (data == null) return;
 
             switch (flag) {
                 case Const.FLAG_CHECK_LOGIN:
-                        if (data.contains(UrlConts.ACT_LOGIN)) {
-                            mListener.notifyLogin(false);
-                        } else {
-                            mListener.notifyLogin(true);
-                        }
+                    if (data.contains(UrlConts.ACT_LOGIN)) {
+                        mListener.notifyLogin(false);
+                    } else {
+                        mListener.notifyLogin(true);
+                    }
                     break;
                 case Const.FLAG_MAIN_LIST:
-                    if (DzkApplication.initCateList.get() == false) {
-                        Document doc = Jsoup.parse(data);
-                        if (doc != null) {
-                            try {
-                                Elements elements = doc.select("#btn_more > ul").get(0).getElementsByTag("a");
-                                List<Category> list = new ArrayList<>();
-                                Element element;
-                                for (int i = 0; i < elements.size(); i++) {
-                                    element = elements.get(i);
-                                    Category cate = new Category(element.text(), element.attr("href"));
-                                    list.add(cate);
-                                }
-
-                                if (list.size() > 0) {
-                                    mListener.setCateList(list);
-                                }
-                            } catch (Exception e) {
-                                e.printStackTrace();
+                    Document doc = Jsoup.parse(data);
+                    if (doc != null) {
+                        try {
+                            Elements elements = doc.select("#btn_more > ul").get(0).getElementsByTag("a");
+                            List<Category> list = new ArrayList<>();
+                            Element element;
+                            for (int i = 0; i < elements.size(); i++) {
+                                element = elements.get(i);
+                                Category cate = new Category(element.text(), element.attr("href"));
+                                list.add(cate);
                             }
+
+                            if (list.size() > 0) {
+                                mListener.setCateList(list);
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
                     }
                     break;

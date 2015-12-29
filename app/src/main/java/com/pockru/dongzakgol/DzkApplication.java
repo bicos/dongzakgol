@@ -17,8 +17,6 @@ public class DzkApplication extends Application {
 
     private Tracker mTracker;
 
-    public static AtomicBoolean initCateList = new AtomicBoolean(false);
-
     @TargetApi(Build.VERSION_CODES.KITKAT)
     @Override
     public void onCreate() {
