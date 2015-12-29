@@ -9,7 +9,6 @@ import android.webkit.ValueCallback;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
-import com.pockru.dongzakgol.webview.UrlConts;
 
 /**
  * Created by 래형 on 2015-12-24.
@@ -34,6 +33,9 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
+        mTracker.setScreenName(BaseActivity.class.getSimpleName());
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
     }
 
     public ValueCallback<Uri> mUploadMessage;

@@ -37,17 +37,10 @@ public class DzkApplication extends Application {
         if (mTracker == null) {
             GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
             // To enable debug logging use: adb shell setprop log.tag.GAv4 DEBUG
-            mTracker = analytics.newTracker(Const.TRACKER_ID);
+            mTracker = analytics.newTracker(R.xml.global_tracker);
 
             // Provide unhandled exceptions reports. Do that first after creating the tracker
             mTracker.enableExceptionReporting(true);
-
-            // Enable Remarketing, Demographics & Interests reports
-            // https://developers.google.com/analytics/devguides/collection/android/display-features
-            mTracker.enableAdvertisingIdCollection(true);
-
-            // Enable automatic activity tracking for your app
-            mTracker.enableAutoActivityTracking(true);
         }
         return mTracker;
     }
