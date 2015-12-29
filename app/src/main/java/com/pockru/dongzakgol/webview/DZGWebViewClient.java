@@ -15,6 +15,7 @@ import android.widget.Toast;
 import com.pockru.dongzakgol.Const;
 import com.pockru.dongzakgol.R;
 import com.pockru.dongzakgol.model.Category;
+import com.pockru.dongzakgol.util.UrlCheckUtils;
 
 import java.net.URISyntaxException;
 import java.util.List;
@@ -70,21 +71,7 @@ public class DZGWebViewClient extends WebViewClient {
             ((DZGWebView)view).loadJavaScript(UrlConts.getHtml(Const.FLAG_MAIN_LIST));
         }
 
-        if (mListener != null) {
-            if (url != null) {
-                Uri uri = Uri.parse(url);
-                if (uri != null && uri.isOpaque() == false) {
-                    String mid = uri.getQueryParameter(UrlConts.PARAM_MID);
-                    String act = uri.getQueryParameter(UrlConts.PARAM_ACT);
-                    if (TextUtils.isEmpty(mid) == false) {
-                        mListener.setMid(mid);
-                    }
-                    if (TextUtils.isEmpty(act) == false) {
-                        mListener.setAct(act);
-                    }
-                }
-            }
-        }
+        UrlCheckUtils.checkUrl(url, mListener);
     }
 
     private boolean sendOutside(String url) {

@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.SubMenu;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -19,6 +20,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
+import android.webkit.WebBackForwardList;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,6 +34,7 @@ import com.pockru.dongzakgol.module.imgur.imgurmodel.ImageResponse;
 import com.pockru.dongzakgol.module.imgur.imgurmodel.Upload;
 import com.pockru.dongzakgol.module.imgur.services.UploadService;
 import com.pockru.dongzakgol.util.UiUtils;
+import com.pockru.dongzakgol.util.UrlCheckUtils;
 import com.pockru.dongzakgol.util.Utils;
 import com.pockru.dongzakgol.webview.DZGWebView;
 import com.pockru.dongzakgol.webview.DZGWebViewClient;
@@ -135,6 +138,13 @@ public class MainActivity extends BaseActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
+            WebBackForwardList webBackForwardList = mWebView.copyBackForwardList();
+
+            if (webBackForwardList.getSize() > 1) {
+                String backUrl = webBackForwardList.getItemAtIndex(webBackForwardList.getCurrentIndex() - 1).getUrl();
+                UrlCheckUtils.checkUrl(backUrl, this);
+            }
+
             if (mWebView.canGoBack()) {
                 mWebView.goBack();
             } else {
@@ -306,14 +316,17 @@ public class MainActivity extends BaseActivity
 
     @Override
     public void setAct(String act) {
+        Log.i("test", "act : "+act);
         switch (act) {
             case UrlConts.ACT_WRITE:
                 fabControll(false);
                 mFabUploadImg.show();
+                mRefreshLayout.setEnabled(false);
                 break;
             default:
                 fabControll(true);
                 mFabUploadImg.hide();
+                mRefreshLayout.setEnabled(true);
                 break;
         }
     }
