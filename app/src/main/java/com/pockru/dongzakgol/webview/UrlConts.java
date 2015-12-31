@@ -42,7 +42,7 @@ public class UrlConts {
     public static final String PARAM_MID = "mid";
     public static final String PARAM_ACT = "act";
 
-    public static final String MAIN_MID = "page_dhbZ41";
+    public static final String MAIN_MID = "main";
 
     //document.querySelector("")
 //    public static final java.lang.String CHECK_LOGIN_JS = "javascript:window.JSBridge.print(document.querySelector(\"#top_mn\"));";
