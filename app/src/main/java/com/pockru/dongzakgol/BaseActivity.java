@@ -18,6 +18,9 @@ public class BaseActivity extends AppCompatActivity {
     // onActivityResult값
     public static final int REQ_FILECHOOSER = 102;
     public static final int REQ_FILECHOOSER_FOR_IMGUR = 103;
+    public static final int REQ_TUMBLR_AUTH = 104;
+    public static final int REQ_FILECHOOSER_FOR_TUMBLR = 105;
+
     public String mCameraPhotoPath;
 
     private Tracker mTracker;

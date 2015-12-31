@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.SubMenu;
 import android.view.View;
@@ -33,12 +34,16 @@ import com.pockru.dongzakgol.module.imgur.helpers.IntentHelper;
 import com.pockru.dongzakgol.module.imgur.imgurmodel.ImageResponse;
 import com.pockru.dongzakgol.module.imgur.imgurmodel.Upload;
 import com.pockru.dongzakgol.module.imgur.services.UploadService;
+import com.pockru.dongzakgol.module.tumblr.service.TumblrOAuthActivity;
+import com.pockru.dongzakgol.module.tumblr.service.TumblrUploadImg;
+import com.pockru.dongzakgol.util.Preference;
 import com.pockru.dongzakgol.util.UiUtils;
 import com.pockru.dongzakgol.util.UrlCheckUtils;
 import com.pockru.dongzakgol.util.Utils;
 import com.pockru.dongzakgol.webview.DZGWebView;
 import com.pockru.dongzakgol.webview.DZGWebViewClient;
 import com.pockru.dongzakgol.webview.UrlConts;
+import com.tumblr.jumblr.types.PhotoPost;
 
 import java.io.File;
 import java.util.List;
@@ -93,8 +98,14 @@ public class MainActivity extends BaseActivity
         mFabUploadImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 이미지 픽업 위해 갤러리 호출
-                IntentHelper.chooseFileIntent(MainActivity.this);
+                if (TextUtils.isEmpty(Preference.getTumblrToken(getApplicationContext()))) {
+                    Intent intent = new Intent(MainActivity.this, TumblrOAuthActivity.class);
+                    startActivityForResult(intent, REQ_TUMBLR_AUTH);
+                } else {
+                    IntentHelper.chooseFileIntent(MainActivity.this);
+                }
+//                // 이미지 픽업 위해 갤러리 호출
+//                IntentHelper.chooseFileIntent(MainActivity.this);
             }
         });
 
@@ -251,32 +262,53 @@ public class MainActivity extends BaseActivity
         super.onActivityResult(requestCode, resultCode, data);
 
         switch (requestCode) {
-            case REQ_FILECHOOSER_FOR_IMGUR:
+            case REQ_TUMBLR_AUTH:
+                if (resultCode == RESULT_OK) {
+                    IntentHelper.chooseFileIntent(this);
+                }
+                break;
+            case REQ_FILECHOOSER_FOR_TUMBLR:
                 if (resultCode != RESULT_OK) return;
 
                 Uri returnUri = data.getData();
                 String filePath = DocumentHelper.getPath(this, returnUri);
-                //Safety check to prevent null pointer exception
-                if (filePath == null || filePath.isEmpty()) return;
-                File chosenFile = new File(filePath);
+//                //Safety check to prevent null pointer exception
+//                if (filePath == null || filePath.isEmpty()) return;
+//                File chosenFile = new File(filePath);
 
-                Upload upload = createUpload(chosenFile);
-
-                /*
-                  Start upload
-                 */
-                new UploadService(this).Execute(upload, new Callback<ImageResponse>() {
+                new TumblrUploadImg(MainActivity.this, new TumblrUploadImg.TumblrUploadListener() {
                     @Override
-                    public void success(ImageResponse imageResponse, Response response) {
-                        Toast.makeText(getApplicationContext(), "이미지 업로드를 성공하였습니다.", Toast.LENGTH_LONG).show();
-                        insertIntoImg(imageResponse);
+                    public void getResponse(PhotoPost result) {
+                        if (result != null && result.getPhotos() != null && result.getPhotos().size() > 0) {
+                            Toast.makeText(getApplicationContext(), getString(R.string.msg_success_upload_image), Toast.LENGTH_SHORT).show();
+                            insertIntoImg(result);
+                        } else {
+                            Toast.makeText(getApplicationContext(), getString(R.string.error_msg_failed_to_save_link), Toast.LENGTH_SHORT).show();
+                        }
                     }
+                }).execute(
+                        Preference.getTumblrToken(getApplicationContext()),
+                        Preference.getTumblrSecret(getApplicationContext()),
+                        filePath
+                );
 
-                    @Override
-                    public void failure(RetrofitError error) {
-                        Toast.makeText(getApplicationContext(), "이미지 업로드를 실패하였습니다.", Toast.LENGTH_LONG).show();
-                    }
-                });
+//                Upload upload = createUpload(chosenFile);
+//
+//                /*
+//                  Start upload
+//                 */
+//                new UploadService(this).Execute(upload, new Callback<ImageResponse>() {
+//                    @Override
+//                    public void success(ImageResponse imageResponse, Response response) {
+//                        Toast.makeText(getApplicationContext(), "이미지 업로드를 성공하였습니다.", Toast.LENGTH_LONG).show();
+//                        insertIntoImg(imageResponse);
+//                    }
+//
+//                    @Override
+//                    public void failure(RetrofitError error) {
+//                        Toast.makeText(getApplicationContext(), "이미지 업로드를 실패하였습니다.", Toast.LENGTH_LONG).show();
+//                    }
+//                });
 
                 break;
 
@@ -296,6 +328,11 @@ public class MainActivity extends BaseActivity
     private void insertIntoImg(ImageResponse imageResponse) {
         if (imageResponse == null) return;
         mWebView.loadJavaScript(UrlConts.insertImageJS(imageResponse.data.link));
+    }
+
+    private void insertIntoImg(PhotoPost result) {
+        if (result == null || result.getPhotos() == null || result.getPhotos().isEmpty()) return;
+        mWebView.loadJavaScript(UrlConts.insertImageJS(result.getPhotos().get(0).getOriginalSize().getUrl()));
     }
 
     private static final String PREFIX_BOARD = "board";

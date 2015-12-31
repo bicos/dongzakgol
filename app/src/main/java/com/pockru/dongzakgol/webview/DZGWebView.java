@@ -243,10 +243,12 @@ public class DZGWebView extends WebView {
     protected void onScrollChanged(int l, int t, int oldl, int oldt) {
         super.onScrollChanged(l, t, oldl, oldt);
 
-        if (t - oldt < 0) {
-            mPageScrollState.onStateUp();
-        } else if (t - oldt > 0) {
-            mPageScrollState.onStateDown();
+        if (mPageScrollState != null) {
+            if (t - oldt < 0) {
+                mPageScrollState.onStateUp();
+            } else if (t - oldt > 0) {
+                mPageScrollState.onStateDown();
+            }
         }
     }
 

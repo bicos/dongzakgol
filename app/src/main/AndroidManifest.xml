@@ -27,6 +27,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".module.tumblr.service.TumblrOAuthActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:theme="@style/AppTheme.Translucent" >
+        </activity>
 
         <meta-data
             android:name="com.google.android.gms.version"

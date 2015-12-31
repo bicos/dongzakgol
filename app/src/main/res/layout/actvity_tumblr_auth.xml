@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/containerWebView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0f000000"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/msg"
+        android:layout_width="match_parent"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="20dp"
+        android:padding="10dp"
+        android:background="@color/colorPrimary"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/white"
+        android:text="이미지를 올리기 위해선 텀블러 연동이 필수입니다.\n텀블러 계정이 없으신 분들은 텀블러 계정을 만드신 후 다시 시도해주세요." />
+
+    <com.pockru.dongzakgol.webview.DZGWebView
+        android:id="@+id/webView"
+        android:layout_below="@+id/msg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="20dp" />
+
+    <ImageButton
+        android:id="@+id/btn_close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/webView"
+        android:layout_alignTop="@+id/webView"
+        android:layout_marginRight="-10dp"
+        android:layout_marginTop="-10dp"
+        android:background="@null"
+        android:src="@drawable/x_btn_close" />
+
+</RelativeLayout>

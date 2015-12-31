@@ -18,6 +18,14 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/LICENSE-FIREBASE.txt'
+    }
 }
 
 dependencies {
@@ -33,4 +41,10 @@ dependencies {
     compile 'org.jsoup:jsoup:1.8.2'
 
     compile 'com.squareup.retrofit:retrofit:1.9.0'
+
+    compile 'com.tumblr:jumblr:0.0.11'
+    compile ('oauth.signpost:signpost-commonshttp4:1.2.1.2') {
+        exclude module: 'httpcore'
+        exclude module: 'httpclient'
+    }
 }

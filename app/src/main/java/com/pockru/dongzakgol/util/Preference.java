@@ -4,9 +4,15 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
+import com.pockru.dongzakgol.Const;
+import com.pockru.dongzakgol.module.tumblr.service.TumblrOAuthActivity;
+
 public class Preference {
 
 	private static final String PREF_NAME = "bestiz";
+
+	private static final String KEY_TUMBLR_TOKEN = "tumblr_token";
+	private static final String KEY_TUMBLR_SECRET = "tumblr_secret";
 
 	private static String getString(Context context, String key) {
 		SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
@@ -44,4 +50,19 @@ public class Preference {
 		editor.apply();
 	}
 
+	public static String getTumblrToken(Context context) {
+		return getString(context, KEY_TUMBLR_TOKEN);
+	}
+
+	public static String getTumblrSecret(Context context) {
+		return getString(context, KEY_TUMBLR_SECRET);
+	}
+
+	public static void setTumblrToken(Context context, String token) {
+		setString(context, KEY_TUMBLR_TOKEN, token);
+	}
+
+	public static void setTumblrSecret(Context context, String secret) {
+		setString(context, KEY_TUMBLR_SECRET, secret);
+	}
 }

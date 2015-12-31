@@ -11,7 +11,7 @@
     <string name="error_msg_cant_delete_post">게시물을 삭제할 수 없습니다.</string>
     <string name="error_msg_cant_interlock">%s 연동을 실패하였습니다.</string>
     <string name="error_msg_already_get_token">이미 %s 계정과 연동이 되어 있습니다.</string>
-    <string name="error_msg_success_upload_image">이미지 업로드를 성공하였습니다.</string>
+    <string name="msg_success_upload_image">이미지 업로드를 성공하였습니다.</string>
     <string name="error_msg_cant_upload_image">이미지 업로드를 실패했습니다.</string>
     <string name="error_msg_save_picture">사진 저장이 실패했습니다.</string>
     <string name="msg_save_picture">사진 저장이 완료되었습니다.</string>
@@ -45,5 +45,6 @@
     <string name="notification_share_link">링크 공유</string>
     <string name="notifaction_success">성공적으로 업로드 되었습니다.</string>
     <string name="notification_progress">이미지를 업로드 중입니다....</string>
+    <string name="toast_msg_connect_success">%s 연동을 성공하였습니다.</string>
 
 </resources>

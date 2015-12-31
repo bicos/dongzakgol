@@ -14,6 +14,6 @@ public class IntentHelper {
   public static void chooseFileIntent(Activity activity){
     Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
     intent.setType("image/*");
-    activity.startActivityForResult(intent, BaseActivity.REQ_FILECHOOSER_FOR_IMGUR);
+    activity.startActivityForResult(intent, BaseActivity.REQ_FILECHOOSER_FOR_TUMBLR);
   }
 }
