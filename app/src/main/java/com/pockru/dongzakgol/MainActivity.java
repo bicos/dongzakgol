@@ -152,20 +152,26 @@ public class MainActivity extends BaseActivity
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
+        if (drawer == null) {
+            super.onBackPressed();
         } else {
-            WebBackForwardList webBackForwardList = mWebView.copyBackForwardList();
-
-            if (webBackForwardList.getSize() > 1) {
-                String backUrl = webBackForwardList.getItemAtIndex(webBackForwardList.getCurrentIndex() - 1).getUrl();
-                UrlCheckUtils.checkUrl(backUrl, this);
-            }
-
-            if (mWebView.canGoBack()) {
-                mWebView.goBack();
+            if (drawer.isDrawerOpen(GravityCompat.START)) {
+                drawer.closeDrawer(GravityCompat.START);
             } else {
-                super.onBackPressed();
+                WebBackForwardList webBackForwardList = mWebView.copyBackForwardList();
+
+                if (webBackForwardList != null
+                        && webBackForwardList.getSize() > 1
+                        && webBackForwardList.getItemAtIndex(webBackForwardList.getCurrentIndex() - 1) != null) {
+                    String backUrl = webBackForwardList.getItemAtIndex(webBackForwardList.getCurrentIndex() - 1).getUrl();
+                    UrlCheckUtils.checkUrl(backUrl, this);
+                }
+
+                if (mWebView != null && mWebView.canGoBack()) {
+                    mWebView.goBack();
+                } else {
+                    super.onBackPressed();
+                }
             }
         }
     }
@@ -359,7 +365,6 @@ public class MainActivity extends BaseActivity
 
     @Override
     public void setAct(String act) {
-        Log.i("test", "act : "+act);
         switch (act) {
             case UrlConts.ACT_WRITE:
                 fabControll(false);
