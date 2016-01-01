@@ -62,6 +62,7 @@ public class MainActivity extends BaseActivity
     private DZGWebView mWebView;
 
     private String mMid = UrlConts.MAIN_MID;
+    private String mAct;
 
     private FloatingActionButton mFabMoveTop;
     private FloatingActionButton mFabWrite;
@@ -351,20 +352,26 @@ public class MainActivity extends BaseActivity
 
     @Override
     public void setMid(String mid) {
-        if (mid != null && mMid.contentEquals(mid) == false) {
+        if (mid != null && mMid.equalsIgnoreCase(mid) == false) {
             sendEvent("category", mid, "");
         }
 
         mMid = mid;
-        if (mid.startsWith(PREFIX_BOARD)) {
-            fabControll(true);
-        } else {
+
+        if (mAct != null && mAct.contains(UrlConts.ACT_WRITE)) {
             fabControll(false);
+        } else {
+            if (mid != null && mid.startsWith(PREFIX_BOARD)) {
+                fabControll(true);
+            } else {
+                fabControll(false);
+            }
         }
     }
 
     @Override
     public void setAct(String act) {
+        mAct = act;
         switch (act) {
             case UrlConts.ACT_WRITE:
                 fabControll(false);
