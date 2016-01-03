@@ -9,23 +9,24 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.text.TextUtils;
-import android.util.Log;
-import android.view.SubMenu;
-import android.view.View;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.ViewGroup;
+import android.view.SubMenu;
+import android.view.View;
 import android.webkit.WebBackForwardList;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,33 +38,29 @@ import com.pockru.dongzakgol.module.imgur.helpers.DocumentHelper;
 import com.pockru.dongzakgol.module.imgur.helpers.IntentHelper;
 import com.pockru.dongzakgol.module.imgur.imgurmodel.ImageResponse;
 import com.pockru.dongzakgol.module.imgur.imgurmodel.Upload;
-import com.pockru.dongzakgol.module.imgur.services.UploadService;
 import com.pockru.dongzakgol.module.tumblr.service.TumblrOAuthActivity;
 import com.pockru.dongzakgol.module.tumblr.service.TumblrUploadImg;
 import com.pockru.dongzakgol.util.Preference;
 import com.pockru.dongzakgol.util.UiUtils;
 import com.pockru.dongzakgol.util.UrlCheckUtils;
-import com.pockru.dongzakgol.util.Utils;
 import com.pockru.dongzakgol.webview.DZGWebView;
 import com.pockru.dongzakgol.webview.DZGWebViewClient;
 import com.pockru.dongzakgol.webview.UrlConts;
 import com.tumblr.jumblr.types.PhotoPost;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
-
 public class MainActivity extends BaseActivity
-        implements NavigationView.OnNavigationItemSelectedListener, DZGWebViewClient.InteractWithAvtivity, DZGWebView.PageScrollState {
+        implements NavigationView.OnNavigationItemSelectedListener, DZGWebViewClient.InteractWithAvtivity, DZGWebView.PageScrollState, ActivityCompat.OnRequestPermissionsResultCallback {
 
     private DZGWebView mWebView;
 
     private String mMid = UrlConts.MAIN_MID;
     private String mAct;
 
+    private FloatingActionButton mFabExpand;
     private FloatingActionButton mFabMoveTop;
     private FloatingActionButton mFabWrite;
     private FloatingActionButton mFabUploadImg;
@@ -82,6 +79,21 @@ public class MainActivity extends BaseActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("");
         setSupportActionBar(toolbar);
+
+        mFabExpand = (FloatingActionButton) findViewById(R.id.fab_expand);
+        mFabExpand.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean isSelected = mFabExpand.isSelected();
+                if (mFabExpand.isSelected()) {
+                    collapseFab();
+                } else {
+                    expandFab();
+                }
+
+                mFabExpand.setSelected(!isSelected);
+            }
+        });
 
         mFabMoveTop = (FloatingActionButton) findViewById(R.id.fab_top);
         mFabMoveTop.setOnClickListener(new View.OnClickListener() {
@@ -107,10 +119,18 @@ public class MainActivity extends BaseActivity
                     Intent intent = new Intent(MainActivity.this, TumblrOAuthActivity.class);
                     startActivityForResult(intent, REQ_TUMBLR_AUTH);
                 } else {
-                    IntentHelper.chooseFileIntent(MainActivity.this);
+                    int permission = ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                    if (permission != PackageManager.PERMISSION_GRANTED) {
+                        // We don't have permission so prompt the user
+                        ActivityCompat.requestPermissions(
+                                MainActivity.this,
+                                PERMISSIONS_STORAGE,
+                                REQUEST_EXTERNAL_STORAGE
+                        );
+                    } else {
+                        IntentHelper.chooseFileIntent(MainActivity.this);
+                    }
                 }
-//                // 이미지 픽업 위해 갤러리 호출
-//                IntentHelper.chooseFileIntent(MainActivity.this);
             }
         });
 
@@ -134,6 +154,10 @@ public class MainActivity extends BaseActivity
             }
         });
 
+        mWebView = (DZGWebView) findViewById(R.id.webview);
+        mWebView.setOnPageScrollSateListener(this);
+        mWebView.loadUrl(UrlConts.getMainUrl());
+
         mAdView = new AdView(this);
         mAdView.setAdSize(AdSize.BANNER);
         mAdView.setAdUnitId(Const.AD_UNIT_ID);
@@ -143,11 +167,79 @@ public class MainActivity extends BaseActivity
         adRequestBuilder.setGender(AdRequest.GENDER_FEMALE);
         mAdView.loadAd(adRequestBuilder.build());
 
-        mWebView = (DZGWebView) findViewById(R.id.webview);
-        mWebView.setOnPageScrollSateListener(this);
-        mWebView.loadUrl(UrlConts.getMainUrl());
+        LinearLayout mainContainer = (LinearLayout) findViewById(R.id.main_container);
+        mainContainer.addView(mAdView);
 
-        verifyStoragePermissions(this);
+    }
+
+    private void expandFab() {
+        ViewCompat.animate(mFabExpand).rotation(45f).start();
+
+        if (isWriteMode) {
+            animExpandAnim(mFabUploadImg, 70f);
+        } else {
+            if (isBoard) {
+                animExpandAnim(mFabWrite, 70f);
+                animExpandAnim(mFabMoveTop, 140f);
+            }
+        }
+    }
+
+    private void animExpandAnim(final FloatingActionButton fb, float translationY) {
+        ViewCompat.animate(fb)
+                .translationY(-UiUtils.getPixelFromDp(this, translationY))
+                .setListener(new ViewPropertyAnimatorListener() {
+                    @Override
+                    public void onAnimationStart(View view) {
+                        fb.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onAnimationEnd(View view) {
+
+                    }
+
+                    @Override
+                    public void onAnimationCancel(View view) {
+
+                    }
+                })
+                .start();
+    }
+
+    private void collapseFab() {
+        ViewCompat.animate(mFabExpand).rotation(0f).start();
+
+        collapseFabAnim(mFabUploadImg);
+
+        collapseFabAnim(mFabWrite);
+
+        collapseFabAnim(mFabMoveTop);
+
+//        LinearLayout container = (LinearLayout) findViewById(R.id.container_fab);
+//        for (int i=0; i<container.getChildCount(); i++) {
+//            FloatingActionButton btn = (FloatingActionButton) container.getChildAt(i);
+//            btn.hide();
+//        }
+    }
+
+    void collapseFabAnim(final FloatingActionButton fb) {
+        ViewCompat.animate(fb).translationY(0).setListener(new ViewPropertyAnimatorListener() {
+            @Override
+            public void onAnimationStart(View view) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(View view) {
+                fb.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationCancel(View view) {
+
+            }
+        }).start();
     }
 
     @Override
@@ -285,9 +377,6 @@ public class MainActivity extends BaseActivity
 
                 Uri returnUri = data.getData();
                 String filePath = DocumentHelper.getPath(this, returnUri);
-//                //Safety check to prevent null pointer exception
-//                if (filePath == null || filePath.isEmpty()) return;
-//                File chosenFile = new File(filePath);
 
                 new TumblrUploadImg(MainActivity.this, new TumblrUploadImg.TumblrUploadListener() {
                     @Override
@@ -305,42 +394,9 @@ public class MainActivity extends BaseActivity
                         filePath
                 );
 
-//                Upload upload = createUpload(chosenFile);
-//
-//                /*
-//                  Start upload
-//                 */
-//                new UploadService(this).Execute(upload, new Callback<ImageResponse>() {
-//                    @Override
-//                    public void success(ImageResponse imageResponse, Response response) {
-//                        Toast.makeText(getApplicationContext(), "이미지 업로드를 성공하였습니다.", Toast.LENGTH_LONG).show();
-//                        insertIntoImg(imageResponse);
-//                    }
-//
-//                    @Override
-//                    public void failure(RetrofitError error) {
-//                        Toast.makeText(getApplicationContext(), "이미지 업로드를 실패하였습니다.", Toast.LENGTH_LONG).show();
-//                    }
-//                });
-
                 break;
 
         }
-    }
-
-    private Upload createUpload(File image) {
-        Upload upload = new Upload();
-
-        upload.image = image;
-        upload.title = "";
-        upload.description = "";
-
-        return upload;
-    }
-
-    private void insertIntoImg(ImageResponse imageResponse) {
-        if (imageResponse == null) return;
-        mWebView.loadJavaScript(UrlConts.insertImageJS(imageResponse.data.link));
     }
 
     private void insertIntoImg(PhotoPost result) {
@@ -350,6 +406,8 @@ public class MainActivity extends BaseActivity
 
     private static final String PREFIX_BOARD = "board";
 
+    private boolean isBoard = false;
+
     @Override
     public void setMid(String mid) {
         if (mid != null && mMid.equalsIgnoreCase(mid) == false) {
@@ -358,47 +416,33 @@ public class MainActivity extends BaseActivity
 
         mMid = mid;
 
-        if (mAct != null && mAct.contains(UrlConts.ACT_WRITE)) {
-            fabControll(false);
+        if (mid != null && mid.startsWith(PREFIX_BOARD)) {
+            isBoard = true;
         } else {
-            if (mid != null && mid.startsWith(PREFIX_BOARD)) {
-                fabControll(true);
-            } else {
-                fabControll(false);
-            }
+            isBoard = false;
         }
     }
+
+    boolean isWriteMode = false;
 
     @Override
     public void setAct(String act) {
         mAct = act;
         switch (act) {
             case UrlConts.ACT_WRITE:
-                fabControll(false);
-                mFabUploadImg.show();
-                mRefreshLayout.setEnabled(false);
+                isWriteMode = true;
                 break;
             default:
-                fabControll(true);
-                mFabUploadImg.hide();
-                mRefreshLayout.setEnabled(true);
+                isWriteMode = false;
                 break;
-        }
-    }
-
-    private void fabControll(boolean showWriteFab) {
-        if (showWriteFab) {
-            mFabMoveTop.show();
-            mFabWrite.show();
-        } else {
-            mFabMoveTop.hide();
-            mFabWrite.hide();
         }
     }
 
     @Override
     public void notifyUrlLoadStart() {
+
         mRefreshLayout.setRefreshing(true);
+        collapseFab();
     }
 
     List<Category> mList;
@@ -417,7 +461,6 @@ public class MainActivity extends BaseActivity
                             menu.add(0, id, id, category.name);
                             id++;
                         }
-                        navigationView.addHeaderView(mAdView);
                     }
                 }
             }
@@ -427,6 +470,7 @@ public class MainActivity extends BaseActivity
     @Override
     public void notifyUrlLoadFinish() {
         mRefreshLayout.setRefreshing(false);
+
     }
 
     @Override
@@ -462,7 +506,7 @@ public class MainActivity extends BaseActivity
 
     /**
      * Checks if the app has permission to write to device storage
-     *
+     * <p/>
      * If the app does not has permission then the user will be prompted to grant permissions
      *
      * @param activity
@@ -478,6 +522,21 @@ public class MainActivity extends BaseActivity
                     PERMISSIONS_STORAGE,
                     REQUEST_EXTERNAL_STORAGE
             );
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        switch (requestCode) {
+            case REQUEST_EXTERNAL_STORAGE:
+                if (Arrays.asList(grantResults).contains(PackageManager.PERMISSION_GRANTED)) {
+                    IntentHelper.chooseFileIntent(MainActivity.this);
+                } else {
+                    Toast.makeText(getApplicationContext(), "권한 동의를 하셔야 서비스를 이용할 수 있습니다.", Toast.LENGTH_LONG).show();
+                }
+                break;
         }
     }
 }
