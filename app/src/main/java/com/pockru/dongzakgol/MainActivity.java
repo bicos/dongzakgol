@@ -119,17 +119,7 @@ public class MainActivity extends BaseActivity
                     Intent intent = new Intent(MainActivity.this, TumblrOAuthActivity.class);
                     startActivityForResult(intent, REQ_TUMBLR_AUTH);
                 } else {
-                    int permission = ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-                    if (permission != PackageManager.PERMISSION_GRANTED) {
-                        // We don't have permission so prompt the user
-                        ActivityCompat.requestPermissions(
-                                MainActivity.this,
-                                PERMISSIONS_STORAGE,
-                                REQUEST_EXTERNAL_STORAGE
-                        );
-                    } else {
-                        IntentHelper.chooseFileIntent(MainActivity.this);
-                    }
+                    showChooseFile();
                 }
             }
         });
@@ -369,7 +359,7 @@ public class MainActivity extends BaseActivity
         switch (requestCode) {
             case REQ_TUMBLR_AUTH:
                 if (resultCode == RESULT_OK) {
-                    IntentHelper.chooseFileIntent(this);
+                    showChooseFile();
                 }
                 break;
             case REQ_FILECHOOSER_FOR_TUMBLR:
@@ -522,6 +512,20 @@ public class MainActivity extends BaseActivity
                     PERMISSIONS_STORAGE,
                     REQUEST_EXTERNAL_STORAGE
             );
+        }
+    }
+
+    private void showChooseFile(){
+        int permission = ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            // We don't have permission so prompt the user
+            ActivityCompat.requestPermissions(
+                    MainActivity.this,
+                    PERMISSIONS_STORAGE,
+                    REQUEST_EXTERNAL_STORAGE
+            );
+        } else {
+            IntentHelper.chooseFileIntent(MainActivity.this);
         }
     }
 
