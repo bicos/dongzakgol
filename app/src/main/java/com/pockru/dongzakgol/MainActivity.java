@@ -347,6 +347,18 @@ public class MainActivity extends BaseActivity
             case R.id.nav_show_my_info:
                 mWebView.loadUrl(UrlConts.getMyInfoUrlUrl(mMid));
                 break;
+            case R.id.nav_show_my_comment:
+                mWebView.loadUrl(UrlConts.getMyComment(mMid));
+                break;
+            case R.id.nav_show_my_auto_login:
+                mWebView.loadUrl(UrlConts.getMyAutoLogin(mMid));
+                break;
+            case R.id.nav_show_my_alarm_list:
+                mWebView.loadUrl(UrlConts.getMyAlarmList(mMid));
+                break;
+            case R.id.nav_show_my_alarm_setting:
+                mWebView.loadUrl(UrlConts.getMyAlarmSetting(mMid));
+                break;
             default:
                 if (mList.size() > item.getItemId()) {
                     mWebView.loadUrl(UrlConts.MAIN_URL + mList.get(item.getItemId()).link);

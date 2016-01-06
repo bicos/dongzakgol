@@ -19,6 +19,14 @@ public class UrlConts {
     // http://sungyun4463.cafe24.com/index.php?act=dispMemberInfo&mid=board_kKDY32
     public static final String MY_INFO_URL = MAIN_URL + "/index.php?act=dispMemberInfo";
 
+    public static final String MY_COMMENT_URL = MAIN_URL+ "/index.php?act=dispSejin7940_commentOwnComment";
+
+    public static final String MY_AUTO_LOGIN = MAIN_URL + "/index.php?act=dispAuto_loginAutoLoginManager";
+
+    public static final String MY_ALARM_LIST = MAIN_URL + "/index.php?act=dispNcenterliteNotifyList";
+
+    public static final String MY_ALARM_SETTING = MAIN_URL + "/index.php?act=dispNcenterliteUserConfig";
+
     public static final String MY_SCRAP_URL = MAIN_URL + "/index.php?act=dispMemberScrappedDocument";
 
     // http://sungyun4463.cafe24.com/index.php?act=dispMemberSavedDocument&mid=board_kKDY32
@@ -73,6 +81,34 @@ public class UrlConts {
 
     public static String getMyInfoUrlUrl(String mid) {
         Uri uri = Uri.parse(MY_INFO_URL);
+        uri = uri.buildUpon()
+                .appendQueryParameter(PARAM_MID, mid).build();
+        return uri.toString();
+    }
+
+    public static String getMyComment(String mid) {
+        Uri uri = Uri.parse(MY_COMMENT_URL);
+        uri = uri.buildUpon()
+                .appendQueryParameter(PARAM_MID, mid).build();
+        return uri.toString();
+    }
+
+    public static String getMyAutoLogin(String mid) {
+        Uri uri = Uri.parse(MY_AUTO_LOGIN);
+        uri = uri.buildUpon()
+                .appendQueryParameter(PARAM_MID, mid).build();
+        return uri.toString();
+    }
+
+    public static String getMyAlarmList(String mid) {
+        Uri uri = Uri.parse(MY_ALARM_LIST);
+        uri = uri.buildUpon()
+                .appendQueryParameter(PARAM_MID, mid).build();
+        return uri.toString();
+    }
+
+    public static String getMyAlarmSetting(String mid) {
+        Uri uri = Uri.parse(MY_ALARM_SETTING);
         uri = uri.buildUpon()
                 .appendQueryParameter(PARAM_MID, mid).build();
         return uri.toString();
