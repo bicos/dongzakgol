@@ -444,9 +444,11 @@ public class MainActivity extends BaseActivity
         mAct = act;
         switch (act) {
             case UrlConts.ACT_WRITE:
+                mRefreshLayout.setEnabled(false);
                 isWriteMode = true;
                 break;
             default:
+                mRefreshLayout.setEnabled(true);
                 isWriteMode = false;
                 break;
         }
