@@ -29,10 +29,9 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_marginRight="@dimen/fab_margin"
-        android:layout_marginBottom="80dp"
+        android:layout_marginBottom="@dimen/fab_margin"
         android:src="@drawable/ic_expand_less_white_24dp"
-        android:visibility="gone"
-        app:fabSize="mini" />
+        android:visibility="gone" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_up"
@@ -40,10 +39,9 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_marginRight="@dimen/fab_margin"
-        android:layout_marginBottom="80dp"
+        android:layout_marginBottom="@dimen/fab_margin"
         android:src="@drawable/ic_insert_photo_white_24dp"
-        android:visibility="gone"
-        app:fabSize="mini" />
+        android:visibility="gone" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_write"
@@ -51,10 +49,9 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_marginRight="@dimen/fab_margin"
-        android:layout_marginBottom="80dp"
+        android:layout_marginBottom="@dimen/fab_margin"
         android:src="@drawable/ic_create_white_24dp"
-        android:visibility="gone"
-        app:fabSize="mini" />
+        android:visibility="gone" />
 
 
     <android.support.design.widget.FloatingActionButton
@@ -63,10 +60,9 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_marginRight="@dimen/fab_margin"
-        android:layout_marginBottom="80dp"
+        android:layout_marginBottom="@dimen/fab_margin"
         android:src="@drawable/ic_add_white_24dp"
-        android:visibility="visible"
-        app:fabSize="mini" />
+        android:visibility="visible" />
 
 
 </android.support.design.widget.CoordinatorLayout>

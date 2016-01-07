@@ -54,7 +54,10 @@ import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends BaseActivity
-        implements NavigationView.OnNavigationItemSelectedListener, DZGWebViewClient.InteractWithAvtivity, DZGWebView.PageScrollState, ActivityCompat.OnRequestPermissionsResultCallback {
+        implements NavigationView.OnNavigationItemSelectedListener,
+        DZGWebViewClient.InteractWithAvtivity,
+        DZGWebView.PageScrollState,
+        ActivityCompat.OnRequestPermissionsResultCallback {
 
     private DZGWebView mWebView;
 
@@ -164,8 +167,10 @@ public class MainActivity extends BaseActivity
         adRequestBuilder.setGender(AdRequest.GENDER_FEMALE);
         mAdView.loadAd(adRequestBuilder.build());
 
-        LinearLayout mainContainer = (LinearLayout) findViewById(R.id.main_container);
-        mainContainer.addView(mAdView);
+        navigationView.addHeaderView(mAdView);
+//
+//        LinearLayout mainContainer = (LinearLayout) findViewById(R.id.main_container);
+//        mainContainer.addView(mAdView);
 
     }
 
@@ -449,12 +454,16 @@ public class MainActivity extends BaseActivity
 
     @Override
     public void notifyUrlLoadStart() {
-
         mRefreshLayout.setRefreshing(true);
         collapseFab();
+
+        SubMenu menu = navigationView.getMenu().findItem(R.id.nav_cate_list).getSubMenu();
+        if (menu.size() == 0) {
+            mWebView.loadJavaScript(UrlConts.getHtml(Const.FLAG_MAIN_LIST));
+        }
     }
 
-    List<Category> mList;
+    private List<Category> mList;
 
     @Override
     public void setCateList(final List<Category> list) {
@@ -462,14 +471,13 @@ public class MainActivity extends BaseActivity
             @Override
             public void run() {
                 if (navigationView != null) {
-                    SubMenu menu = navigationView.getMenu().getItem(0).getSubMenu();
+                    SubMenu menu = navigationView.getMenu().findItem(R.id.nav_cate_list).getSubMenu();
                     int id = 0;
-                    if (menu.size() == 0) {
-                        mList = list;
-                        for (Category category : list) {
-                            menu.add(0, id, id, category.name);
-                            id++;
-                        }
+                    menu.clear();
+                    mList = list;
+                    for (Category category : list) {
+                        menu.add(0, id, id, category.name);
+                        id++;
                     }
                 }
             }

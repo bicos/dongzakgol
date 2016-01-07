@@ -1,27 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main_container"
+    android:id="@+id/srl_main"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.pockru.dongzakgol.MainActivity"
     tools:showIn="@layout/app_bar_main">
 
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/srl_main"
+    <com.pockru.dongzakgol.webview.DZGWebView
+        android:id="@+id/webview"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_height="match_parent" />
 
-        <com.pockru.dongzakgol.webview.DZGWebView
-            android:id="@+id/webview"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-    </android.support.v4.widget.SwipeRefreshLayout>
-</LinearLayout>
+</android.support.v4.widget.SwipeRefreshLayout>
 
 
 
