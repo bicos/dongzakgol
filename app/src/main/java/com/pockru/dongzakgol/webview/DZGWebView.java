@@ -217,7 +217,8 @@ public class DZGWebView extends WebView {
     private Map<String, String> getDefaultAdditionalHeader() {
         Map<String, String> additionalHeader = new HashMap<>();
         additionalHeader.put("accept-encoding ", "gzip, deflate, sdch");
-        additionalHeader.put("referer", referer);
+        additionalHeader.put("Referer", referer);
+        additionalHeader.put("Upgrade-Insecure-Requests", "1");
         return additionalHeader;
     }
 

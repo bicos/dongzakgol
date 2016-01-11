@@ -94,14 +94,11 @@ public class MainActivity extends BaseActivity
         mFabExpand.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                boolean isSelected = mFabExpand.isSelected();
                 if (mFabExpand.isSelected()) {
                     collapseFab();
                 } else {
                     expandFab();
                 }
-
-                mFabExpand.setSelected(!isSelected);
             }
         });
 
@@ -185,6 +182,8 @@ public class MainActivity extends BaseActivity
                 animExpandAnim(mFabMoveTop, 140f);
             }
         }
+
+        mFabExpand.setSelected(true);
     }
 
     private void animExpandAnim(final FloatingActionButton fb, float translationY) {
@@ -218,6 +217,7 @@ public class MainActivity extends BaseActivity
 
         collapseFabAnim(mFabMoveTop);
 
+        mFabExpand.setSelected(false);
 //        LinearLayout container = (LinearLayout) findViewById(R.id.container_fab);
 //        for (int i=0; i<container.getChildCount(); i++) {
 //            FloatingActionButton btn = (FloatingActionButton) container.getChildAt(i);
@@ -366,7 +366,7 @@ public class MainActivity extends BaseActivity
                 break;
             default:
                 if (mList.size() > item.getItemId()) {
-                    mWebView.loadUrl(UrlConts.MAIN_URL + mList.get(item.getItemId()).link);
+                    mWebView.loadUrl(mList.get(item.getItemId()).link);
                 }
                 break;
         }
