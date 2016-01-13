@@ -54,25 +54,23 @@ import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends BaseActivity
-        implements NavigationView.OnNavigationItemSelectedListener,
-        DZGWebViewClient.InteractWithAvtivity,
+        implements DZGWebViewClient.InteractWithAvtivity,
         DZGWebView.PageScrollState,
         ActivityCompat.OnRequestPermissionsResultCallback {
 
     private DZGWebView mWebView;
 
     private String mMid = UrlConts.MAIN_MID;
-    private String mAct;
 
     private FloatingActionButton mFabExpand;
     private FloatingActionButton mFabMoveTop;
     private FloatingActionButton mFabWrite;
     private FloatingActionButton mFabUploadImg;
-    private SwipeRefreshLayout mRefreshLayout;
-    private TextView mTvHeaderMsg;
+//    private SwipeRefreshLayout mRefreshLayout;
+//    private TextView mTvHeaderMsg;
 
-    private NavigationView navigationView;
-
+//    private NavigationView navigationView;
+//
     private AdView mAdView;
 
     @Override
@@ -131,44 +129,30 @@ public class MainActivity extends BaseActivity
             }
         });
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
+//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+//        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+//                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+//        drawer.setDrawerListener(toggle);
+//        toggle.syncState();
 
-        navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-
-        mTvHeaderMsg = (TextView) navigationView.getHeaderView(0).findViewById(R.id.tv_header_msg);
-
-        mRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.srl_main);
-        mRefreshLayout.setColorSchemeColors(R.color.refresh_progress_1, R.color.refresh_progress_2);
-        mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                mWebView.reload();
-            }
-        });
+//        mRefreshLayout.setColorSchemeColors(R.color.refresh_progress_1, R.color.refresh_progress_2);
+//        mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+//            @Override
+//            public void onRefresh() {
+//                mWebView.reload();
+//            }
+//        });
 
         mWebView = (DZGWebView) findViewById(R.id.webview);
         mWebView.setOnPageScrollSateListener(this);
         mWebView.loadUrl(UrlConts.getMainUrl());
 
-        mAdView = new AdView(this);
-        mAdView.setAdSize(AdSize.BANNER);
-        mAdView.setAdUnitId(Const.AD_UNIT_ID);
+        mAdView = (AdView) findViewById(R.id.adView);
 
         // Create an ad request.
         AdRequest.Builder adRequestBuilder = new AdRequest.Builder();
         adRequestBuilder.setGender(AdRequest.GENDER_FEMALE);
         mAdView.loadAd(adRequestBuilder.build());
-
-        navigationView.addHeaderView(mAdView);
-//
-//        LinearLayout mainContainer = (LinearLayout) findViewById(R.id.main_container);
-//        mainContainer.addView(mAdView);
-
     }
 
     private void expandFab() {
@@ -218,11 +202,6 @@ public class MainActivity extends BaseActivity
         collapseFabAnim(mFabMoveTop);
 
         mFabExpand.setSelected(false);
-//        LinearLayout container = (LinearLayout) findViewById(R.id.container_fab);
-//        for (int i=0; i<container.getChildCount(); i++) {
-//            FloatingActionButton btn = (FloatingActionButton) container.getChildAt(i);
-//            btn.hide();
-//        }
     }
 
     void collapseFabAnim(final FloatingActionButton fb) {
@@ -246,28 +225,19 @@ public class MainActivity extends BaseActivity
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer == null) {
-            super.onBackPressed();
+        WebBackForwardList webBackForwardList = mWebView.copyBackForwardList();
+
+        if (webBackForwardList != null
+                && webBackForwardList.getSize() > 1
+                && webBackForwardList.getItemAtIndex(webBackForwardList.getCurrentIndex() - 1) != null) {
+            String backUrl = webBackForwardList.getItemAtIndex(webBackForwardList.getCurrentIndex() - 1).getUrl();
+            UrlCheckUtils.checkUrl(backUrl, this);
+        }
+
+        if (mWebView != null && mWebView.canGoBack()) {
+            mWebView.goBack();
         } else {
-            if (drawer.isDrawerOpen(GravityCompat.START)) {
-                drawer.closeDrawer(GravityCompat.START);
-            } else {
-                WebBackForwardList webBackForwardList = mWebView.copyBackForwardList();
-
-                if (webBackForwardList != null
-                        && webBackForwardList.getSize() > 1
-                        && webBackForwardList.getItemAtIndex(webBackForwardList.getCurrentIndex() - 1) != null) {
-                    String backUrl = webBackForwardList.getItemAtIndex(webBackForwardList.getCurrentIndex() - 1).getUrl();
-                    UrlCheckUtils.checkUrl(backUrl, this);
-                }
-
-                if (mWebView != null && mWebView.canGoBack()) {
-                    mWebView.goBack();
-                } else {
-                    super.onBackPressed();
-                }
-            }
+            super.onBackPressed();
         }
     }
 
@@ -343,39 +313,6 @@ public class MainActivity extends BaseActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-
-        switch (item.getItemId()) {
-            case R.id.nav_show_my_info:
-                mWebView.loadUrl(UrlConts.getMyInfoUrlUrl(mMid));
-                break;
-            case R.id.nav_show_my_comment:
-                mWebView.loadUrl(UrlConts.getMyComment(mMid));
-                break;
-            case R.id.nav_show_my_auto_login:
-                mWebView.loadUrl(UrlConts.getMyAutoLogin(mMid));
-                break;
-            case R.id.nav_show_my_alarm_list:
-                mWebView.loadUrl(UrlConts.getMyAlarmList(mMid));
-                break;
-            case R.id.nav_show_my_alarm_setting:
-                mWebView.loadUrl(UrlConts.getMyAlarmSetting(mMid));
-                break;
-            default:
-                if (mList.size() > item.getItemId()) {
-                    mWebView.loadUrl(mList.get(item.getItemId()).link);
-                }
-                break;
-        }
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -441,14 +378,13 @@ public class MainActivity extends BaseActivity
 
     @Override
     public void setAct(String act) {
-        mAct = act;
         switch (act) {
             case UrlConts.ACT_WRITE:
-                mRefreshLayout.setEnabled(false);
+//                mRefreshLayout.setEnabled(false);
                 isWriteMode = true;
                 break;
             default:
-                mRefreshLayout.setEnabled(true);
+//                mRefreshLayout.setEnabled(true);
                 isWriteMode = false;
                 break;
         }
@@ -456,54 +392,13 @@ public class MainActivity extends BaseActivity
 
     @Override
     public void notifyUrlLoadStart() {
-        mRefreshLayout.setRefreshing(true);
+//        mRefreshLayout.setRefreshing(true);
         collapseFab();
-
-        SubMenu menu = navigationView.getMenu().findItem(R.id.nav_cate_list).getSubMenu();
-        if (menu.size() == 0) {
-            mWebView.loadJavaScript(UrlConts.getHtml(Const.FLAG_MAIN_LIST));
-        }
-    }
-
-    private List<Category> mList;
-
-    @Override
-    public void setCateList(final List<Category> list) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (navigationView != null) {
-                    SubMenu menu = navigationView.getMenu().findItem(R.id.nav_cate_list).getSubMenu();
-                    int id = 0;
-                    menu.clear();
-                    mList = list;
-                    for (Category category : list) {
-                        menu.add(0, id, id, category.name);
-                        id++;
-                    }
-                }
-            }
-        });
     }
 
     @Override
     public void notifyUrlLoadFinish() {
-        mRefreshLayout.setRefreshing(false);
-
-    }
-
-    @Override
-    public void notifyLogin(final boolean isLogin) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (isLogin) {
-                    mTvHeaderMsg.setText(R.string.inform_msg_logout);
-                } else {
-                    mTvHeaderMsg.setText(R.string.inform_msg_login);
-                }
-            }
-        });
+//        mRefreshLayout.setRefreshing(false);
     }
 
     @Override

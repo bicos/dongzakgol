@@ -106,8 +106,6 @@ public class DZGWebViewClient extends WebViewClient {
         void setMid(String mid);
         void setAct(String act);
         void notifyUrlLoadFinish();
-        void notifyLogin(boolean isLogin);
         void notifyUrlLoadStart();
-        void setCateList(List<Category> list);
     }
 }

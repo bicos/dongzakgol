@@ -139,10 +139,10 @@ public class DZGWebView extends WebView {
             CookieManager.getInstance().setAcceptThirdPartyCookies(this, true);
         }
 
-        if (getContext() instanceof DZGWebViewClient.InteractWithAvtivity) {
-            addJavascriptInterface(new JSBridge((DZGWebViewClient.InteractWithAvtivity) getContext()),
-                    JSBridge.TAG);
-        }
+//        if (getContext() instanceof DZGWebViewClient.InteractWithAvtivity) {
+//            addJavascriptInterface(new JSBridge((DZGWebViewClient.InteractWithAvtivity) getContext()),
+//                    JSBridge.TAG);
+//        }
 
         setDownloadListener(new CustomDownloadListener());
 
@@ -273,37 +273,36 @@ public class DZGWebView extends WebView {
         @JavascriptInterface
         public void print(String data, String flag) {
             if (data == null) return;
-
-            switch (flag) {
-                case Const.FLAG_CHECK_LOGIN:
-                    if (data.contains(UrlConts.ACT_LOGIN)) {
-                        mListener.notifyLogin(false);
-                    } else {
-                        mListener.notifyLogin(true);
-                    }
-                    break;
-                case Const.FLAG_MAIN_LIST:
-                    Document doc = Jsoup.parse(data);
-                    if (doc != null) {
-                        try {
-                            Elements elements = doc.select("#btn_more > ul").get(0).getElementsByTag("a");
-                            List<Category> list = new ArrayList<>();
-                            Element element;
-                            for (int i = 0; i < elements.size(); i++) {
-                                element = elements.get(i);
-                                Category cate = new Category(element.text(), element.attr("href"));
-                                list.add(cate);
-                            }
-
-                            if (list.size() > 0) {
-                                mListener.setCateList(list);
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    break;
-            }
+//            switch (flag) {
+//                case Const.FLAG_CHECK_LOGIN:
+//                    if (data.contains(UrlConts.ACT_LOGIN)) {
+//                        mListener.notifyLogin(false);
+//                    } else {
+//                        mListener.notifyLogin(true);
+//                    }
+//                    break;
+//                case Const.FLAG_MAIN_LIST:
+//                    Document doc = Jsoup.parse(data);
+//                    if (doc != null) {
+//                        try {
+//                            Elements elements = doc.select("#btn_more > ul").get(0).getElementsByTag("a");
+//                            List<Category> list = new ArrayList<>();
+//                            Element element;
+//                            for (int i = 0; i < elements.size(); i++) {
+//                                element = elements.get(i);
+//                                Category cate = new Category(element.text(), element.attr("href"));
+//                                list.add(cate);
+//                            }
+//
+//                            if (list.size() > 0) {
+//                                mListener.setCateList(list);
+//                            }
+//                        } catch (Exception e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                    break;
+//            }
         }
     }
 }
