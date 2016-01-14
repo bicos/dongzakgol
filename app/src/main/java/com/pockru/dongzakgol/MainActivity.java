@@ -66,7 +66,7 @@ public class MainActivity extends BaseActivity
     private FloatingActionButton mFabMoveTop;
     private FloatingActionButton mFabWrite;
     private FloatingActionButton mFabUploadImg;
-//    private SwipeRefreshLayout mRefreshLayout;
+    private SwipeRefreshLayout mRefreshLayout;
 //    private TextView mTvHeaderMsg;
 
 //    private NavigationView navigationView;
@@ -135,13 +135,14 @@ public class MainActivity extends BaseActivity
 //        drawer.setDrawerListener(toggle);
 //        toggle.syncState();
 
-//        mRefreshLayout.setColorSchemeColors(R.color.refresh_progress_1, R.color.refresh_progress_2);
-//        mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-//            @Override
-//            public void onRefresh() {
-//                mWebView.reload();
-//            }
-//        });
+        mRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_layout);
+        mRefreshLayout.setColorSchemeColors(R.color.refresh_progress_1, R.color.refresh_progress_2);
+        mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                mWebView.reload();
+            }
+        });
 
         mWebView = (DZGWebView) findViewById(R.id.webview);
         mWebView.setOnPageScrollSateListener(this);
@@ -380,11 +381,11 @@ public class MainActivity extends BaseActivity
     public void setAct(String act) {
         switch (act) {
             case UrlConts.ACT_WRITE:
-//                mRefreshLayout.setEnabled(false);
+                mRefreshLayout.setEnabled(false);
                 isWriteMode = true;
                 break;
             default:
-//                mRefreshLayout.setEnabled(true);
+                mRefreshLayout.setEnabled(true);
                 isWriteMode = false;
                 break;
         }
@@ -392,13 +393,13 @@ public class MainActivity extends BaseActivity
 
     @Override
     public void notifyUrlLoadStart() {
-//        mRefreshLayout.setRefreshing(true);
+        mRefreshLayout.setRefreshing(true);
         collapseFab();
     }
 
     @Override
     public void notifyUrlLoadFinish() {
-//        mRefreshLayout.setRefreshing(false);
+        mRefreshLayout.setRefreshing(false);
     }
 
     @Override
