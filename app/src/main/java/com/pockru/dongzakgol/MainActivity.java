@@ -162,10 +162,8 @@ public class MainActivity extends BaseActivity
         if (isWriteMode) {
             animExpandAnim(mFabUploadImg, 70f);
         } else {
-            if (isBoard) {
-                animExpandAnim(mFabWrite, 70f);
-                animExpandAnim(mFabMoveTop, 140f);
-            }
+            animExpandAnim(mFabWrite, 70f);
+            animExpandAnim(mFabMoveTop, 140f);
         }
 
         mFabExpand.setSelected(true);
@@ -358,8 +356,6 @@ public class MainActivity extends BaseActivity
 
     private static final String PREFIX_BOARD = "board";
 
-    private boolean isBoard = false;
-
     @Override
     public void setMid(String mid) {
         if (mid != null && mMid.equalsIgnoreCase(mid) == false) {
@@ -367,12 +363,6 @@ public class MainActivity extends BaseActivity
         }
 
         mMid = mid;
-
-        if (mid != null && mid.startsWith(PREFIX_BOARD)) {
-            isBoard = true;
-        } else {
-            isBoard = false;
-        }
     }
 
     boolean isWriteMode = false;

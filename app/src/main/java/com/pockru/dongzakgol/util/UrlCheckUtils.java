@@ -29,8 +29,12 @@ public class UrlCheckUtils {
                     }
                 }
 
-                String act = uri.getQueryParameter(UrlConts.PARAM_ACT);
+                String mid = uri.getQueryParameter(UrlConts.PARAM_MID);
+                if (TextUtils.isEmpty(mid) == false) {
+                    mListener.setMid(mid);
+                }
 
+                String act = uri.getQueryParameter(UrlConts.PARAM_ACT);
                 if (TextUtils.isEmpty(act) == false) {
                     mListener.setAct(act);
                 } else {
