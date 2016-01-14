@@ -61,9 +61,6 @@ public class UrlConts {
 
     public static final String getMainUrl() {
         Uri uri = Uri.parse(MAIN_URL);
-        uri = uri.buildUpon()
-                .appendPath(MAIN_PATH)
-                .appendQueryParameter(PARAM_MID, MAIN_MID).build();
         return uri.toString();
     }
 

@@ -6,6 +6,8 @@ import android.text.TextUtils;
 import com.pockru.dongzakgol.webview.DZGWebViewClient;
 import com.pockru.dongzakgol.webview.UrlConts;
 
+import java.util.List;
+
 /**
  * Created by 래형 on 2015-12-29.
  */
@@ -15,12 +17,19 @@ public class UrlCheckUtils {
         if (url != null && mListener != null) {
             Uri uri = Uri.parse(url);
             if (uri != null && uri.isOpaque() == false) {
-                String mid = uri.getQueryParameter(UrlConts.PARAM_MID);
-                String act = uri.getQueryParameter(UrlConts.PARAM_ACT);
+                List<String> segments = uri.getPathSegments();
 
-                if (TextUtils.isEmpty(mid) == false) {
-                    mListener.setMid(mid);
+                if (segments != null && segments.size() > 0) {
+                    if (segments.get(0) != null) {
+                        String mid = segments.get(0);
+
+                        if (TextUtils.isEmpty(mid) == false) {
+                            mListener.setMid(mid);
+                        }
+                    }
                 }
+
+                String act = uri.getQueryParameter(UrlConts.PARAM_ACT);
 
                 if (TextUtils.isEmpty(act) == false) {
                     mListener.setAct(act);

@@ -64,9 +64,6 @@ public class DZGWebViewClient extends WebViewClient {
         if (mListener != null) {
             mListener.notifyUrlLoadFinish();
         }
-        if (view instanceof DZGWebView) {
-            ((DZGWebView)view).loadJavaScript(UrlConts.getHtml(Const.FLAG_CHECK_LOGIN));
-        }
 
         UrlCheckUtils.checkUrl(url, mListener);
     }
