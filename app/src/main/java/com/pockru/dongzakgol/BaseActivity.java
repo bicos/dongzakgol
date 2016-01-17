@@ -68,9 +68,10 @@ public class BaseActivity extends AppCompatActivity {
                     }
                 }
 
-                mUploadMessageV21.onReceiveValue(results);
-                mUploadMessageV21 = null;
-
+                if (mUploadMessageV21 != null) {
+                    mUploadMessageV21.onReceiveValue(results);
+                    mUploadMessageV21 = null;
+                }
             default:
                 break;
         }
