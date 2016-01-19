@@ -28,6 +28,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.webkit.WebBackForwardList;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -51,7 +52,10 @@ import com.tumblr.jumblr.types.PhotoPost;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 public class MainActivity extends BaseActivity
         implements DZGWebViewClient.InteractWithAvtivity,
@@ -61,6 +65,8 @@ public class MainActivity extends BaseActivity
     private DZGWebView mWebView;
 
     private String mMid = UrlConts.MAIN_MID;
+
+    private HashMap<Integer, FloatingActionButton> fabBtnHash = new HashMap<>();
 
     private FloatingActionButton mFabExpand;
     private FloatingActionButton mFabMoveTop;
@@ -76,11 +82,6 @@ public class MainActivity extends BaseActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            getWindow().setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
-                    WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
-        }
 
         setContentView(R.layout.activity_main);
 
@@ -99,6 +100,7 @@ public class MainActivity extends BaseActivity
                 }
             }
         });
+        fabBtnHash.put(R.id.fab_expand, mFabExpand);
 
         mFabMoveTop = (FloatingActionButton) findViewById(R.id.fab_top);
         mFabMoveTop.setOnClickListener(new View.OnClickListener() {
@@ -107,6 +109,7 @@ public class MainActivity extends BaseActivity
                 mWebView.scrollTo(0, 0);
             }
         });
+        fabBtnHash.put(R.id.fab_top, mFabMoveTop);
 
         mFabWrite = (FloatingActionButton) findViewById(R.id.fab_write);
         mFabWrite.setOnClickListener(new View.OnClickListener() {
@@ -115,6 +118,7 @@ public class MainActivity extends BaseActivity
                 mWebView.loadUrl(UrlConts.getWriteUrl(mMid));
             }
         });
+        fabBtnHash.put(R.id.fab_write, mFabWrite);
 
         mFabUploadImg = (FloatingActionButton) findViewById(R.id.fab_up);
         mFabUploadImg.setOnClickListener(new View.OnClickListener() {
@@ -128,6 +132,7 @@ public class MainActivity extends BaseActivity
                 }
             }
         });
+        fabBtnHash.put(R.id.fab_up, mFabUploadImg);
 
 //        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 //        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -150,20 +155,39 @@ public class MainActivity extends BaseActivity
 
         mAdView = (AdView) findViewById(R.id.adView);
 
-        // Create an ad request.
-        AdRequest.Builder adRequestBuilder = new AdRequest.Builder();
-        adRequestBuilder.setGender(AdRequest.GENDER_FEMALE);
-        mAdView.loadAd(adRequestBuilder.build());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            // Create an ad request.
+            AdRequest.Builder adRequestBuilder = new AdRequest.Builder();
+            adRequestBuilder.setGender(AdRequest.GENDER_FEMALE);
+            mAdView.loadAd(adRequestBuilder.build());
+        } else {
+            mAdView.setVisibility(View.GONE);
+            setAllBtnMargin();
+        }
+
+    }
+
+    private void setAllBtnMargin(){
+        for (Integer key : fabBtnHash.keySet()) {
+            setBtnMargin(fabBtnHash.get(key));
+        }
+    }
+
+    private void setBtnMargin(FloatingActionButton fab){
+        Log.i("test", "fab : "+fab);
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) fab.getLayoutParams();
+        params.addRule(RelativeLayout.ALIGN_BOTTOM, -1);
+        params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, 1);
     }
 
     private void expandFab() {
         ViewCompat.animate(mFabExpand).rotation(45f).start();
 
         if (isWriteMode) {
-            animExpandAnim(mFabUploadImg, 70f);
+            animExpandAnim(mFabUploadImg, 60f);
         } else {
-            animExpandAnim(mFabWrite, 70f);
-            animExpandAnim(mFabMoveTop, 140f);
+            animExpandAnim(mFabWrite, 60f);
+            animExpandAnim(mFabMoveTop, 120f);
         }
 
         mFabExpand.setSelected(true);
@@ -193,14 +217,16 @@ public class MainActivity extends BaseActivity
 
     private void collapseFab() {
         ViewCompat.animate(mFabExpand).rotation(0f).start();
-
-        collapseFabAnim(mFabUploadImg);
-
-        collapseFabAnim(mFabWrite);
-
-        collapseFabAnim(mFabMoveTop);
-
+        collapseAllFabAnim();
         mFabExpand.setSelected(false);
+    }
+
+    private void collapseAllFabAnim(){
+        for (Integer key : fabBtnHash.keySet()) {
+            if (key != R.id.fab_expand) {
+                collapseFabAnim(fabBtnHash.get(key));
+            }
+        }
     }
 
     void collapseFabAnim(final FloatingActionButton fb) {
@@ -249,7 +275,7 @@ public class MainActivity extends BaseActivity
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             mWebView.onPause();
         }
-        mAdView.pause();
+//        mAdView.pause();
     }
 
     /**
@@ -260,7 +286,7 @@ public class MainActivity extends BaseActivity
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             mWebView.onResume();
         }
-        mAdView.resume();
+//        mAdView.resume();
         super.onResume();
     }
 
@@ -273,10 +299,10 @@ public class MainActivity extends BaseActivity
             mWebView.destroy();
             mWebView = null;
         }
-        if (mAdView != null) {
-            mAdView.destroy();
-            mAdView = null;
-        }
+//        if (mAdView != null) {
+//            mAdView.destroy();
+//            mAdView = null;
+//        }
         super.onDestroy();
     }
 
