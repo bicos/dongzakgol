@@ -1,7 +1,6 @@
 package com.pockru.dongzakgol.webview;
 
 import android.net.Uri;
-import android.util.Log;
 
 /**
  * Created by 래형 on 2015-12-24.
@@ -20,7 +19,6 @@ public class UrlConts {
     public static final String LOGIN_URL = MAIN_URL + "/index.php?mid=%s&act=dispMemberLoginForm";
     public static final String LOGOUT_URL = MAIN_URL + "/index.php?mid=%s&act=dispMemberLogout";
 
-    // http://sungyun4463.cafe24.com/index.php?act=dispMemberInfo&mid=board_kKDY32
     public static final String MY_INFO_URL = MAIN_URL + "/index.php?act=dispMemberInfo";
 
     public static final String MY_COMMENT_URL = MAIN_URL+ "/index.php?act=dispSejin7940_commentOwnComment";

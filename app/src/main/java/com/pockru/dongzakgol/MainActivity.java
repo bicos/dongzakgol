@@ -10,36 +10,24 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorListener;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.SubMenu;
 import android.view.View;
-import android.view.WindowManager;
 import android.webkit.WebBackForwardList;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
-import com.pockru.dongzakgol.model.Category;
 import com.pockru.dongzakgol.module.imgur.helpers.DocumentHelper;
 import com.pockru.dongzakgol.module.imgur.helpers.IntentHelper;
-import com.pockru.dongzakgol.module.imgur.imgurmodel.ImageResponse;
-import com.pockru.dongzakgol.module.imgur.imgurmodel.Upload;
 import com.pockru.dongzakgol.module.tumblr.service.TumblrOAuthActivity;
 import com.pockru.dongzakgol.module.tumblr.service.TumblrUploadImg;
 import com.pockru.dongzakgol.util.Preference;
@@ -50,12 +38,8 @@ import com.pockru.dongzakgol.webview.DZGWebViewClient;
 import com.pockru.dongzakgol.webview.UrlConts;
 import com.tumblr.jumblr.types.PhotoPost;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
 
 public class MainActivity extends BaseActivity
         implements DZGWebViewClient.InteractWithAvtivity,
@@ -165,6 +149,28 @@ public class MainActivity extends BaseActivity
             setAllBtnMargin();
         }
 
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        if (intent == null || intent.getAction() == null) return;
+
+        switch (intent.getAction()) {
+            case Intent.ACTION_VIEW:
+
+                Uri uri = intent.getData();
+
+                if (mWebView != null && uri != null) {
+                    mWebView.loadUrl(uri.toString());
+                }
+
+                break;
+            default:
+
+                break;
+        }
     }
 
     private void setAllBtnMargin(){
@@ -306,10 +312,14 @@ public class MainActivity extends BaseActivity
         super.onDestroy();
     }
 
+    private Menu menu;
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+        this.menu = menu;
+
         return true;
     }
 
@@ -332,6 +342,10 @@ public class MainActivity extends BaseActivity
                     })
                     .setNegativeButton("취소", null)
                     .show();
+            return true;
+        } else if (id == R.id.action_setting) {
+            Intent intent = new Intent(MainActivity.this, SettingActivity.class);
+            startActivity(intent);
             return true;
         }
 

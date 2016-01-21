@@ -7,4 +7,10 @@
         android:title="@string/action_finish"
         android:icon="@drawable/ic_clear_white_24dp"
         app:showAsAction="ifRoom" />
+
+    <item
+        android:orderInCategory="101"
+        android:id="@+id/action_setting"
+        android:title="Setting"
+        />
 </menu>

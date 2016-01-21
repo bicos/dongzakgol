@@ -47,4 +47,6 @@
     <string name="notification_progress">이미지를 업로드 중입니다....</string>
     <string name="toast_msg_connect_success">%s 연동을 성공하였습니다.</string>
 
+    <string name="url_my_info">http://www.dzgol.net/index.php?act=dispMemberInfo</string>
+
 </resources>

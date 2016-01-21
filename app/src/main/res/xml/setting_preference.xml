@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="어플리케이션 정보">
+        <Preference
+            android:key="version_name"
+            android:title="버전 정보" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="내 정보">
+        <Preference android:title="내 설정 보기">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="@string/url_my_info"
+                android:targetClass="com.pockru.dongzakgol.MainActivity"
+                android:targetPackage="com.pockru.dongzakgol" />
+
+        </Preference>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
