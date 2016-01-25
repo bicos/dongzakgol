@@ -22,59 +22,22 @@
 
     </android.support.v4.widget.SwipeRefreshLayout>
 
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab_top"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <ImageButton
+        android:id="@+id/btn_move_up"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_above="@+id/adView"
-        android:layout_alignParentRight="true"
-        android:layout_gravity="bottom|end"
-        android:layout_marginBottom="@dimen/fab_margin"
-        android:layout_marginRight="@dimen/fab_margin"
-        android:src="@drawable/ic_expand_less_white_24dp"
-        android:visibility="gone"
-        app:fabSize="mini" />
+        android:layout_toLeftOf="@+id/btn_move_down"
+        android:layout_alignWithParentIfMissing="true"
+        android:src="@drawable/ic_keyboard_arrow_up_white_24dp" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab_up"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <ImageButton
+        android:id="@+id/btn_move_down"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentRight="true"
         android:layout_above="@+id/adView"
-        android:layout_alignParentRight="true"
-        android:layout_gravity="bottom|end"
-        android:layout_marginBottom="@dimen/fab_margin"
-        android:layout_marginRight="@dimen/fab_margin"
-        android:src="@drawable/ic_insert_photo_white_24dp"
-        android:visibility="gone"
-        app:fabSize="mini" />
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab_write"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/adView"
-        android:layout_alignParentRight="true"
-        android:layout_gravity="bottom|end"
-        android:layout_marginBottom="@dimen/fab_margin"
-        android:layout_marginRight="@dimen/fab_margin"
-        android:src="@drawable/ic_create_white_24dp"
-        android:visibility="gone"
-        app:fabSize="mini" />
-
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab_expand"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/adView"
-        android:layout_alignParentRight="true"
-        android:layout_gravity="bottom|end"
-        android:layout_marginBottom="@dimen/fab_margin"
-        android:layout_marginRight="@dimen/fab_margin"
-        android:src="@drawable/ic_add_white_24dp"
-        android:visibility="visible"
-        app:fabSize="mini" />
+        android:src="@drawable/ic_keyboard_arrow_down_white_24dp" />
 
     <com.google.android.gms.ads.AdView
         android:id="@+id/adView"

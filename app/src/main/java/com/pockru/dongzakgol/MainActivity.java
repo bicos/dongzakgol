@@ -9,19 +9,15 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.view.ViewCompat;
-import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebBackForwardList;
-import android.widget.RelativeLayout;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.google.android.gms.ads.AdRequest;
@@ -31,7 +27,6 @@ import com.pockru.dongzakgol.module.imgur.helpers.IntentHelper;
 import com.pockru.dongzakgol.module.tumblr.service.TumblrOAuthActivity;
 import com.pockru.dongzakgol.module.tumblr.service.TumblrUploadImg;
 import com.pockru.dongzakgol.util.Preference;
-import com.pockru.dongzakgol.util.UiUtils;
 import com.pockru.dongzakgol.util.UrlCheckUtils;
 import com.pockru.dongzakgol.webview.DZGWebView;
 import com.pockru.dongzakgol.webview.DZGWebViewClient;
@@ -39,7 +34,6 @@ import com.pockru.dongzakgol.webview.UrlConts;
 import com.tumblr.jumblr.types.PhotoPost;
 
 import java.util.Arrays;
-import java.util.HashMap;
 
 public class MainActivity extends BaseActivity
         implements DZGWebViewClient.InteractWithAvtivity,
@@ -50,18 +44,14 @@ public class MainActivity extends BaseActivity
 
     private String mMid = UrlConts.MAIN_MID;
 
-    private HashMap<Integer, FloatingActionButton> fabBtnHash = new HashMap<>();
-
-    private FloatingActionButton mFabExpand;
-    private FloatingActionButton mFabMoveTop;
-    private FloatingActionButton mFabWrite;
-    private FloatingActionButton mFabUploadImg;
     private SwipeRefreshLayout mRefreshLayout;
 //    private TextView mTvHeaderMsg;
 
 //    private NavigationView navigationView;
 //
     private AdView mAdView;
+
+    boolean isWriteMode = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,50 +63,21 @@ public class MainActivity extends BaseActivity
         toolbar.setTitle("");
         setSupportActionBar(toolbar);
 
-        mFabExpand = (FloatingActionButton) findViewById(R.id.fab_expand);
-        mFabExpand.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mFabExpand.isSelected()) {
-                    collapseFab();
-                } else {
-                    expandFab();
-                }
-            }
-        });
-        fabBtnHash.put(R.id.fab_expand, mFabExpand);
-
-        mFabMoveTop = (FloatingActionButton) findViewById(R.id.fab_top);
-        mFabMoveTop.setOnClickListener(new View.OnClickListener() {
+        ImageButton btnMoveUp = (ImageButton) findViewById(R.id.btn_move_up);
+        btnMoveUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mWebView.scrollTo(0, 0);
             }
         });
-        fabBtnHash.put(R.id.fab_top, mFabMoveTop);
 
-        mFabWrite = (FloatingActionButton) findViewById(R.id.fab_write);
-        mFabWrite.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mWebView.loadUrl(UrlConts.getWriteUrl(mMid));
-            }
-        });
-        fabBtnHash.put(R.id.fab_write, mFabWrite);
-
-        mFabUploadImg = (FloatingActionButton) findViewById(R.id.fab_up);
-        mFabUploadImg.setOnClickListener(new View.OnClickListener() {
+        ImageButton btnMoveDown = (ImageButton) findViewById(R.id.btn_move_down);
+        btnMoveDown.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (TextUtils.isEmpty(Preference.getTumblrToken(getApplicationContext()))) {
-                    Intent intent = new Intent(MainActivity.this, TumblrOAuthActivity.class);
-                    startActivityForResult(intent, REQ_TUMBLR_AUTH);
-                } else {
-                    showChooseFile();
-                }
+                mWebView.scrollTo(0, (int) Math.floor(mWebView.getContentHeight() * mWebView.getScale()));
             }
         });
-        fabBtnHash.put(R.id.fab_up, mFabUploadImg);
 
 //        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 //        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -140,13 +101,11 @@ public class MainActivity extends BaseActivity
         mAdView = (AdView) findViewById(R.id.adView);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            // Create an ad request.
             AdRequest.Builder adRequestBuilder = new AdRequest.Builder();
             adRequestBuilder.setGender(AdRequest.GENDER_FEMALE);
             mAdView.loadAd(adRequestBuilder.build());
         } else {
             mAdView.setVisibility(View.GONE);
-            setAllBtnMargin();
         }
 
     }
@@ -171,87 +130,6 @@ public class MainActivity extends BaseActivity
 
                 break;
         }
-    }
-
-    private void setAllBtnMargin(){
-        for (Integer key : fabBtnHash.keySet()) {
-            setBtnMargin(fabBtnHash.get(key));
-        }
-    }
-
-    private void setBtnMargin(FloatingActionButton fab){
-        Log.i("test", "fab : "+fab);
-        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) fab.getLayoutParams();
-        params.addRule(RelativeLayout.ALIGN_BOTTOM, -1);
-        params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, 1);
-    }
-
-    private void expandFab() {
-        ViewCompat.animate(mFabExpand).rotation(45f).start();
-
-        if (isWriteMode) {
-            animExpandAnim(mFabUploadImg, 60f);
-        } else {
-            animExpandAnim(mFabWrite, 60f);
-            animExpandAnim(mFabMoveTop, 120f);
-        }
-
-        mFabExpand.setSelected(true);
-    }
-
-    private void animExpandAnim(final FloatingActionButton fb, float translationY) {
-        ViewCompat.animate(fb)
-                .translationY(-UiUtils.getPixelFromDp(this, translationY))
-                .setListener(new ViewPropertyAnimatorListener() {
-                    @Override
-                    public void onAnimationStart(View view) {
-                        fb.setVisibility(View.VISIBLE);
-                    }
-
-                    @Override
-                    public void onAnimationEnd(View view) {
-
-                    }
-
-                    @Override
-                    public void onAnimationCancel(View view) {
-
-                    }
-                })
-                .start();
-    }
-
-    private void collapseFab() {
-        ViewCompat.animate(mFabExpand).rotation(0f).start();
-        collapseAllFabAnim();
-        mFabExpand.setSelected(false);
-    }
-
-    private void collapseAllFabAnim(){
-        for (Integer key : fabBtnHash.keySet()) {
-            if (key != R.id.fab_expand) {
-                collapseFabAnim(fabBtnHash.get(key));
-            }
-        }
-    }
-
-    void collapseFabAnim(final FloatingActionButton fb) {
-        ViewCompat.animate(fb).translationY(0).setListener(new ViewPropertyAnimatorListener() {
-            @Override
-            public void onAnimationStart(View view) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(View view) {
-                fb.setVisibility(View.GONE);
-            }
-
-            @Override
-            public void onAnimationCancel(View view) {
-
-            }
-        }).start();
     }
 
     @Override
@@ -312,14 +190,10 @@ public class MainActivity extends BaseActivity
         super.onDestroy();
     }
 
-    private Menu menu;
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
-        this.menu = menu;
-
         return true;
     }
 
@@ -330,7 +204,6 @@ public class MainActivity extends BaseActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_finish) {
             new AlertDialog.Builder(MainActivity.this)
                     .setMessage("앱을 종료하시겠습니까?")
@@ -347,9 +220,29 @@ public class MainActivity extends BaseActivity
             Intent intent = new Intent(MainActivity.this, SettingActivity.class);
             startActivity(intent);
             return true;
+        } else if (id == R.id.action_write) {
+            mWebView.loadUrl(UrlConts.getWriteUrl(mMid));
+            return true;
+        } else if (id == R.id.action_uploadPicture) {
+            if (TextUtils.isEmpty(Preference.getTumblrToken(getApplicationContext()))) {
+                Intent intent = new Intent(MainActivity.this, TumblrOAuthActivity.class);
+                startActivityForResult(intent, REQ_TUMBLR_AUTH);
+            } else {
+                showChooseFile();
+            }
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        if (menu != null) {
+            menu.findItem(R.id.action_uploadPicture).setVisible(isWriteMode);
+            menu.findItem(R.id.action_write).setVisible(!isWriteMode);
+        }
+        return true;
     }
 
     @Override
@@ -405,7 +298,7 @@ public class MainActivity extends BaseActivity
         mMid = mid;
     }
 
-    boolean isWriteMode = false;
+
 
     @Override
     public void setAct(String act) {
@@ -419,12 +312,14 @@ public class MainActivity extends BaseActivity
                 isWriteMode = false;
                 break;
         }
+
+        supportInvalidateOptionsMenu();
     }
 
     @Override
     public void notifyUrlLoadStart() {
         mRefreshLayout.setRefreshing(true);
-        collapseFab();
+//        collapseFab();
     }
 
     @Override
