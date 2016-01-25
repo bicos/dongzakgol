@@ -3,8 +3,10 @@ package com.pockru.dongzakgol;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.KeyEvent;
 import android.webkit.ValueCallback;
 
 import com.google.android.gms.analytics.HitBuilders;
@@ -80,5 +82,22 @@ public class BaseActivity extends AppCompatActivity {
     public void sendEvent(String category, String action, String label){
         mTracker.send(new HitBuilders.EventBuilder(category, action)
                 .setLabel(label).build());
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_MENU && "LGE".equalsIgnoreCase(Build.BRAND)) {
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_MENU && "LGE".equalsIgnoreCase(Build.BRAND)) {
+            openOptionsMenu();
+            return true;
+        }
+        return super.onKeyUp(keyCode, event);
     }
 }
