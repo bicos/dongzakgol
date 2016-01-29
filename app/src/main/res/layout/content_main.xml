@@ -37,6 +37,7 @@
         android:layout_height="50dp"
         android:layout_alignParentRight="true"
         android:layout_above="@+id/adView"
+        android:layout_alignWithParentIfMissing="true"
         android:src="@drawable/ic_keyboard_arrow_down_white_24dp" />
 
     <com.google.android.gms.ads.AdView
