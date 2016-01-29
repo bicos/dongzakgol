@@ -48,5 +48,11 @@
     <string name="toast_msg_connect_success">%s 연동을 성공하였습니다.</string>
 
     <string name="url_my_info">http://www.dzgol.net/index.php?act=dispMemberInfo</string>
+    <string name="url_alarm_list">http://www.dzgol.net/index.php?act=dispNcenterliteNotifyList</string>
+    <string name="url_alarm_setting">http://www.dzgol.net/index.php?act=dispNcenterliteUserConfig</string>
+    <string name="url_my_scrap">http://www.dzgol.net/index.php?act=dispMemberScrappedDocument</string>
+
+    <string name="dzgol_email_addr">dongzalgol@gmail.com</string>
+    <string name="intent_data_dzgol_email_addr">mailto:dongzalgol@gmail.com</string>
 
 </resources>

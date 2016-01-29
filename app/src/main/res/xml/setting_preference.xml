@@ -5,6 +5,14 @@
         <Preference
             android:key="version_name"
             android:title="버전 정보" />
+        <Preference
+            android:summary="@string/dzgol_email_addr"
+            android:title="동작골 문의">
+            <intent
+                android:action="android.intent.action.SENDTO"
+                android:data="@string/intent_data_dzgol_email_addr" />
+        </Preference>
+
     </PreferenceCategory>
 
     <PreferenceCategory android:title="내 정보">
@@ -16,6 +24,33 @@
                 android:targetPackage="com.pockru.dongzakgol" />
 
         </Preference>
+
+        <Preference android:title="내 알람 보기">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="@string/url_alarm_list"
+                android:targetClass="com.pockru.dongzakgol.MainActivity"
+                android:targetPackage="com.pockru.dongzakgol" />
+
+        </Preference>
+
+        <Preference android:title="내 알람 설정 보기">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="@string/url_alarm_setting"
+                android:targetClass="com.pockru.dongzakgol.MainActivity"
+                android:targetPackage="com.pockru.dongzakgol" />
+
+        </Preference>
+
+        <!--<Preference android:title="내 스크랩 보기">-->
+            <!--<intent-->
+                <!--android:action="android.intent.action.VIEW"-->
+                <!--android:data="@string/url_my_scrap"-->
+                <!--android:targetClass="com.pockru.dongzakgol.MainActivity"-->
+                <!--android:targetPackage="com.pockru.dongzakgol" />-->
+
+        <!--</Preference>-->
 
     </PreferenceCategory>
 

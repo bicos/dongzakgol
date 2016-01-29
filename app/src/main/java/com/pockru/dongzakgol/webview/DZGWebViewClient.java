@@ -41,6 +41,8 @@ public class DZGWebViewClient extends WebViewClient {
         if (mListener != null) {
             mListener.notifyUrlLoadStart();
         }
+
+        UrlCheckUtils.checkUrl(url, mListener);
     }
 
     @Override
@@ -64,8 +66,6 @@ public class DZGWebViewClient extends WebViewClient {
         if (mListener != null) {
             mListener.notifyUrlLoadFinish();
         }
-
-        UrlCheckUtils.checkUrl(url, mListener);
     }
 
     private boolean sendOutside(String url) {
