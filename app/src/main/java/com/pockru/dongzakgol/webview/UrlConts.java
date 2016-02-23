@@ -10,10 +10,10 @@ public class UrlConts {
     public static final String UA_APP = "app_and";
 
     public static final String HTTP_SCHEME = "http://";
-    public static final String HTTPS_SCHEME = "https://";
+//    public static final String HTTPS_SCHEME = "https://";
 
     public static final String MAIN_URL = HTTP_SCHEME + "www.dzgol.net";
-    public static final String SSL_MAIN_URL = HTTPS_SCHEME + "www.dzgol.net:49882";
+//    public static final String SSL_MAIN_URL = HTTPS_SCHEME + "www.dzgol.net:49882";
     public static final String MAIN_PATH = "index.php";
 
     public static final String LOGIN_URL = MAIN_URL + "/index.php?mid=%s&act=dispMemberLoginForm";
@@ -63,7 +63,7 @@ public class UrlConts {
     }
 
     public static final String getWriteUrl(String mid) {
-        Uri uri = Uri.parse(SSL_MAIN_URL);
+        Uri uri = Uri.parse(MAIN_URL);
         uri = uri.buildUpon()
                 .appendPath(MAIN_PATH)
                 .appendQueryParameter(PARAM_MID, mid)

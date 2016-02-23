@@ -20,6 +20,11 @@
                 android:title="내가 쓴 댓글 보기" />
 
             <item
+                android:id="@+id/nav_show_my_scrap"
+                android:title="내 스크랩 목록"
+                />
+
+            <item
                 android:id="@+id/nav_show_my_alarm_list"
                 android:title="내 알림 목록"
                 />

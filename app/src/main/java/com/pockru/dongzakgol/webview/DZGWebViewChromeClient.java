@@ -34,17 +34,13 @@ public class DZGWebViewChromeClient extends WebChromeClient{
 
     Context mContext;
 
-//    private View mCustomView;
-//    private int mOriginalSystemUiVisibility;
-//    private int mOriginalOrientation;
-//    private CustomViewCallback mCustomViewCallback;
-
     public DZGWebViewChromeClient(Context context) {
         mContext = context;
     }
 
     @Override
     public void onProgressChanged(WebView view, int newProgress) {
+
     }
 
     public void openFileChooser(ValueCallback<Uri> uploadFile, String acceptType) {

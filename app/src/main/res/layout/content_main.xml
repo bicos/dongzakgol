@@ -27,16 +27,16 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_above="@+id/adView"
-        android:layout_toLeftOf="@+id/btn_move_down"
         android:layout_alignWithParentIfMissing="true"
+        android:layout_toLeftOf="@+id/btn_move_down"
         android:src="@drawable/ic_keyboard_arrow_up_white_24dp" />
 
     <ImageButton
         android:id="@+id/btn_move_down"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:layout_alignParentRight="true"
         android:layout_above="@+id/adView"
+        android:layout_alignParentRight="true"
         android:layout_alignWithParentIfMissing="true"
         android:src="@drawable/ic_keyboard_arrow_down_white_24dp" />
 
@@ -47,6 +47,16 @@
         android:layout_alignParentBottom="true"
         app:adSize="BANNER"
         app:adUnitId="ca-app-pub-4329801228567987/1247000757" />
+
+    <ProgressBar
+        android:id="@+id/pb_webview"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="10dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="-4dp"
+        android:max="100"
+        android:visibility="visible" />
 
 </RelativeLayout>
 

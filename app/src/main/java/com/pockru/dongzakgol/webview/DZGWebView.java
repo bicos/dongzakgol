@@ -6,6 +6,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -21,6 +22,7 @@ import android.webkit.MimeTypeMap;
 import android.webkit.ValueCallback;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 import android.widget.ZoomButtonsController;
 
@@ -55,8 +57,6 @@ public class DZGWebView extends WebView {
         super(context, attrs);
         init();
     }
-
-    public DZGWebViewChromeClient chromeClient;
 
     private void init() {
 
@@ -150,10 +150,30 @@ public class DZGWebView extends WebView {
 
         setDownloadListener(new CustomDownloadListener());
 
-        setWebViewClient(new DZGWebViewClient(getContext()));
+        setWebViewClient(new DZGWebViewClient(getContext()) {
 
-        chromeClient = new DZGWebViewChromeClient(getContext());
-        setWebChromeClient(chromeClient);
+            @Override
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                super.onPageStarted(view, url, favicon);
+                if (mProgressBar != null) {
+                    mProgressBar.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+        setWebChromeClient(new DZGWebViewChromeClient(getContext()) {
+            @Override
+            public void onProgressChanged(WebView view, int newProgress) {
+                super.onProgressChanged(view, newProgress);
+
+                if (mProgressBar != null) {
+                    if(newProgress < 100) {
+                        mProgressBar.setProgress(newProgress);
+                    } else {
+                        mProgressBar.setVisibility(View.INVISIBLE);
+                    }
+                }
+            }
+        });
     }
 
     private void imageDownload(HitTestResult result) {
@@ -197,10 +217,6 @@ public class DZGWebView extends WebView {
         }
     }
 
-    public DZGWebView getChildWebView() {
-        return chromeClient.getChildWebView();
-    }
-
     //#btn_more > ul
     public void loadJavaScript(String javascript) {
         loadJavaScript(javascript, null);
@@ -230,6 +246,12 @@ public class DZGWebView extends WebView {
     public void loadUrl(String url) {
         loadUrl(url, getDefaultAdditionalHeader());
         referer = url;
+    }
+
+    private ProgressBar mProgressBar;
+
+    public void setProgressBar(ProgressBar progressBar) {
+        mProgressBar = progressBar;
     }
 
     public static interface PageScrollState {

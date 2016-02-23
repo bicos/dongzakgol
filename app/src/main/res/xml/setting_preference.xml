@@ -43,14 +43,14 @@
 
         </Preference>
 
-        <!--<Preference android:title="내 스크랩 보기">-->
-            <!--<intent-->
-                <!--android:action="android.intent.action.VIEW"-->
-                <!--android:data="@string/url_my_scrap"-->
-                <!--android:targetClass="com.pockru.dongzakgol.MainActivity"-->
-                <!--android:targetPackage="com.pockru.dongzakgol" />-->
+        <Preference android:title="내 스크랩 보기">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="@string/url_my_scrap"
+                android:targetClass="com.pockru.dongzakgol.MainActivity"
+                android:targetPackage="com.pockru.dongzakgol" />
 
-        <!--</Preference>-->
+        </Preference>
 
     </PreferenceCategory>
 

@@ -18,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebBackForwardList;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.ads.AdRequest;
@@ -95,6 +96,7 @@ public class MainActivity extends BaseActivity
         });
 
         mWebView = (DZGWebView) findViewById(R.id.webview);
+        mWebView.setProgressBar((ProgressBar)findViewById(R.id.pb_webview));
         mWebView.setOnPageScrollSateListener(this);
         mWebView.loadUrl(UrlConts.getMainUrl());
 
@@ -318,13 +320,12 @@ public class MainActivity extends BaseActivity
 
     @Override
     public void notifyUrlLoadStart() {
-        mRefreshLayout.setRefreshing(true);
+        mRefreshLayout.setRefreshing(false);
 //        collapseFab();
     }
 
     @Override
     public void notifyUrlLoadFinish() {
-        mRefreshLayout.setRefreshing(false);
     }
 
     @Override
