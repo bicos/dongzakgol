@@ -9,10 +9,14 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,6 +25,10 @@ import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.pockru.dongzakgol.module.imgur.helpers.DocumentHelper;
@@ -41,6 +49,8 @@ public class MainActivity extends BaseActivity
         DZGWebView.PageScrollState,
         ActivityCompat.OnRequestPermissionsResultCallback {
 
+    private static final String FIRE_BASE_URL = "https://dongzakgol.firebaseio.com/";
+
     private DZGWebView mWebView;
 
     private String mMid = UrlConts.MAIN_MID;
@@ -48,15 +58,36 @@ public class MainActivity extends BaseActivity
     private SwipeRefreshLayout mRefreshLayout;
 //    private TextView mTvHeaderMsg;
 
-//    private NavigationView navigationView;
+    private NavigationView navigationView;
 //
     private AdView mAdView;
 
     boolean isWriteMode = false;
 
+    Firebase myFirebaseRef;
+    DataSnapshot mCateList;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Firebase.setAndroidContext(this);
+
+        myFirebaseRef = new Firebase(FIRE_BASE_URL);
+        myFirebaseRef.child("category").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                MenuItem item = navigationView.getMenu().findItem(R.id.nav_cate_list);
+                mCateList = dataSnapshot;
+                for (DataSnapshot child : mCateList.getChildren()) {
+                    item.getSubMenu().add((String)child.getValue());
+                }
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+                Log.i("test","onCancelled : "+firebaseError.toString());
+            }
+        });
 
         setContentView(R.layout.activity_main);
 
@@ -80,11 +111,25 @@ public class MainActivity extends BaseActivity
             }
         });
 
-//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-//        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-//                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-//        drawer.setDrawerListener(toggle);
-//        toggle.syncState();
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(MenuItem item) {
+                DataSnapshot snapshot = findMenuItem((String) item.getTitle());
+                if (snapshot != null) {
+                    mWebView.loadUrl(UrlConts.MAIN_URL + "/" + snapshot.getKey());
+                    return true;
+                }
+
+                return false;
+            }
+        });
 
         mRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_layout);
         mRefreshLayout.setColorSchemeColors(R.color.refresh_progress_1, R.color.refresh_progress_2);
@@ -110,6 +155,17 @@ public class MainActivity extends BaseActivity
             mAdView.setVisibility(View.GONE);
         }
 
+    }
+
+    private DataSnapshot findMenuItem(String title) {
+        if (mCateList != null) {
+            for (DataSnapshot snapshot : mCateList.getChildren()) {
+                if (snapshot.getValue().equals(title)) {
+                    return snapshot;
+                }
+            }
+        }
+        return null;
     }
 
     @Override
