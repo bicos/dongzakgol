@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -78,8 +79,9 @@ public class MainActivity extends BaseActivity
             public void onDataChange(DataSnapshot dataSnapshot) {
                 MenuItem item = navigationView.getMenu().findItem(R.id.nav_cate_list);
                 mCateList = dataSnapshot;
+
                 for (DataSnapshot child : mCateList.getChildren()) {
-                    item.getSubMenu().add((String)child.getValue());
+                    item.getSubMenu().add(Menu.NONE, Menu.NONE, ((Long)child.child("order").getValue()).intValue(), (String) child.child("name").getValue());
                 }
             }
 
@@ -111,7 +113,7 @@ public class MainActivity extends BaseActivity
             }
         });
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
@@ -124,6 +126,7 @@ public class MainActivity extends BaseActivity
                 DataSnapshot snapshot = findMenuItem((String) item.getTitle());
                 if (snapshot != null) {
                     mWebView.loadUrl(UrlConts.MAIN_URL + "/" + snapshot.getKey());
+                    drawer.closeDrawer(GravityCompat.START);
                     return true;
                 }
 
@@ -160,7 +163,7 @@ public class MainActivity extends BaseActivity
     private DataSnapshot findMenuItem(String title) {
         if (mCateList != null) {
             for (DataSnapshot snapshot : mCateList.getChildren()) {
-                if (snapshot.getValue().equals(title)) {
+                if (snapshot.child("name").getValue().equals(title)) {
                     return snapshot;
                 }
             }
@@ -355,8 +358,6 @@ public class MainActivity extends BaseActivity
 
         mMid = mid;
     }
-
-
 
     @Override
     public void setAct(String act) {
