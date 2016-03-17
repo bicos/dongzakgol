@@ -1,7 +1,9 @@
 package com.pockru.dongzakgol.module.tumblr.service;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.net.http.SslError;
@@ -197,18 +199,44 @@ public class TumblrOAuthActivity extends Activity {
 		}
 
 		@Override
-		public void onLoadResource(WebView view, String url) {
-			super.onLoadResource(view, url);
-		}
+		public void onReceivedSslError(WebView view, final SslErrorHandler handler, SslError error) {
+			StringBuffer sb = new StringBuffer();
+			switch(error.getPrimaryError())
+			{
+				case SslError.SSL_EXPIRED:
+					sb.append("이 사이트의 보안 인증서는 신뢰할 수 없습니다.\n");
+					break;
+				case SslError.SSL_IDMISMATCH:
+					sb.append("이 사이트의 보안 인증서는 신뢰할 수 없습니다.\n");
+					break;
+				case SslError.SSL_NOTYETVALID:
+					sb.append("이 사이트의 보안 인증서는 신뢰할 수 없습니다.\n");
+					break;
+				case SslError.SSL_UNTRUSTED:
+					sb.append("이 사이트의 보안 인증서는 신뢰할 수 없습니다.\n");
+					break;
+				default:
+					sb.append("보안 인증서에 오류가 있습니다.\n");
+					break;
 
-		@Override
-		public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
-			super.onReceivedError(view, errorCode, description, failingUrl);
-		}
+			}
+			sb.append("계속 진행하시겠습니까?");
 
-		@Override
-		public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
-			handler.proceed();
+			new AlertDialog.Builder(view.getContext())
+					.setMessage(sb.toString())
+					.setPositiveButton("진행", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							handler.proceed();
+						}
+					})
+					.setNegativeButton("취소", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							handler.cancel();
+						}
+					})
+					.show();
 		}
 
 		@Override

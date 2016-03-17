@@ -26,6 +26,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 import android.widget.ZoomButtonsController;
 
+import com.pockru.dongzakgol.BuildConfig;
 import com.pockru.dongzakgol.Const;
 import com.pockru.dongzakgol.DzkApplication;
 import com.pockru.dongzakgol.R;
@@ -132,7 +133,7 @@ public class DZGWebView extends WebView {
         // Log.i(TAG, "databasePath : "+databasePath);
         getSettings().setDatabasePath(databasePath);
 
-        getSettings().setUserAgentString(getSettings().getUserAgentString() + "_" + UrlConts.UA_APP);
+        getSettings().setUserAgentString(getSettings().getUserAgentString() + "_" + UrlConts.UA_APP+"_"+ BuildConfig.VERSION_CODE);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW );

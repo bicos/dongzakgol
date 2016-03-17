@@ -1,13 +1,17 @@
 package com.pockru.dongzakgol.webview;
 
+import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.net.http.SslError;
 import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.HttpAuthHandler;
+import android.webkit.SslErrorHandler;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
@@ -66,6 +70,47 @@ public class DZGWebViewClient extends WebViewClient {
         if (mListener != null) {
             mListener.notifyUrlLoadFinish();
         }
+    }
+
+    @Override
+    public void onReceivedSslError(WebView view, final SslErrorHandler handler, SslError error) {
+        StringBuffer sb = new StringBuffer();
+        switch(error.getPrimaryError())
+        {
+            case SslError.SSL_EXPIRED:
+                sb.append("이 사이트의 보안 인증서는 신뢰할 수 없습니다.\n");
+                break;
+            case SslError.SSL_IDMISMATCH:
+                sb.append("이 사이트의 보안 인증서는 신뢰할 수 없습니다.\n");
+                break;
+            case SslError.SSL_NOTYETVALID:
+                sb.append("이 사이트의 보안 인증서는 신뢰할 수 없습니다.\n");
+                break;
+            case SslError.SSL_UNTRUSTED:
+                sb.append("이 사이트의 보안 인증서는 신뢰할 수 없습니다.\n");
+                break;
+            default:
+                sb.append("보안 인증서에 오류가 있습니다.\n");
+                break;
+
+        }
+        sb.append("계속 진행하시겠습니까?");
+
+        new AlertDialog.Builder(view.getContext())
+                .setMessage(sb.toString())
+                .setPositiveButton("진행", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        handler.proceed();
+                    }
+                })
+                .setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        handler.cancel();
+                    }
+                })
+                .show();
     }
 
     private boolean sendOutside(String url) {
