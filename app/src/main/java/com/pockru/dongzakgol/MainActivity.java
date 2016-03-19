@@ -20,6 +20,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 import android.webkit.WebBackForwardList;
 import android.widget.ImageButton;
@@ -32,6 +33,7 @@ import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.pockru.dongzakgol.module.Category;
 import com.pockru.dongzakgol.module.imgur.helpers.DocumentHelper;
 import com.pockru.dongzakgol.module.imgur.helpers.IntentHelper;
 import com.pockru.dongzakgol.module.tumblr.service.TumblrOAuthActivity;
@@ -44,6 +46,11 @@ import com.pockru.dongzakgol.webview.UrlConts;
 import com.tumblr.jumblr.types.PhotoPost;
 
 import java.util.Arrays;
+
+import io.realm.Realm;
+import io.realm.RealmChangeListener;
+import io.realm.RealmConfiguration;
+import io.realm.RealmResults;
 
 public class MainActivity extends BaseActivity
         implements DZGWebViewClient.InteractWithAvtivity,
@@ -66,30 +73,20 @@ public class MainActivity extends BaseActivity
     boolean isWriteMode = false;
 
     Firebase myFirebaseRef;
-    DataSnapshot mCateList;
+
+    private Realm realm;
+    private RealmConfiguration realmConfig;
+    RealmResults<Category> mCateList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         Firebase.setAndroidContext(this);
-
         myFirebaseRef = new Firebase(FIRE_BASE_URL);
-        myFirebaseRef.child("category").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                MenuItem item = navigationView.getMenu().findItem(R.id.nav_cate_list);
-                mCateList = dataSnapshot;
 
-                for (DataSnapshot child : mCateList.getChildren()) {
-                    item.getSubMenu().add(Menu.NONE, Menu.NONE, ((Long)child.child("order").getValue()).intValue(), (String) child.child("name").getValue());
-                }
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-                Log.i("test","onCancelled : "+firebaseError.toString());
-            }
-        });
+        realmConfig = new RealmConfiguration.Builder(this).build();
+        realm = Realm.getInstance(realmConfig);
 
         setContentView(R.layout.activity_main);
 
@@ -123,9 +120,9 @@ public class MainActivity extends BaseActivity
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem item) {
-                DataSnapshot snapshot = findMenuItem((String) item.getTitle());
-                if (snapshot != null) {
-                    mWebView.loadUrl(UrlConts.MAIN_URL + "/" + snapshot.getKey());
+                Category category = realm.where(Category.class).equalTo("name", String.valueOf(item.getTitle())).findFirst();
+                if (category != null) {
+                    mWebView.loadUrl(UrlConts.MAIN_URL + "/" + category.getKey());
                     drawer.closeDrawer(GravityCompat.START);
                     return true;
                 }
@@ -158,17 +155,45 @@ public class MainActivity extends BaseActivity
             mAdView.setVisibility(View.GONE);
         }
 
-    }
+        mCateList = realm.where(Category.class).findAll();
 
-    private DataSnapshot findMenuItem(String title) {
-        if (mCateList != null) {
-            for (DataSnapshot snapshot : mCateList.getChildren()) {
-                if (snapshot.child("name").getValue().equals(title)) {
-                    return snapshot;
-                }
+        if (mCateList.size() > 0) {
+            for (Category category : mCateList) {
+                MenuItem item = navigationView.getMenu().findItem(R.id.nav_cate_list);
+                item.getSubMenu().add(Menu.NONE, category.getId().intValue(), category.getOrder().intValue(), category.getName());
             }
         }
-        return null;
+
+        myFirebaseRef.child("category").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                MenuItem item = navigationView.getMenu().findItem(R.id.nav_cate_list);
+                SubMenu subMenu = item.getSubMenu();
+
+                realm.beginTransaction();
+                for (DataSnapshot child : dataSnapshot.getChildren()) {
+                    Category category = new Category();
+                    category.setKey(child.getKey());
+                    category.setId((Long) child.child("id").getValue());
+                    category.setOrder((Long) child.child("order").getValue());
+                    category.setName((String) child.child("name").getValue());
+                    realm.copyToRealmOrUpdate(category);
+
+                    MenuItem cateItem;
+                    if ((cateItem = subMenu.findItem(category.getId().intValue())) != null){
+                        cateItem.setTitle(category.getName());
+                    } else {
+                        subMenu.add(Menu.NONE, category.getId().intValue(), category.getOrder().intValue(), category.getName());
+                    }
+                }
+                realm.commitTransaction();
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+                Log.i("test","onCancelled : "+firebaseError.toString());
+            }
+        });
     }
 
     @Override
