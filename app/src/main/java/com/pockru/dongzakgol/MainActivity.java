@@ -33,13 +33,14 @@ import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
-import com.pockru.dongzakgol.module.Category;
+import com.pockru.dongzakgol.model.Category;
 import com.pockru.dongzakgol.module.imgur.helpers.DocumentHelper;
 import com.pockru.dongzakgol.module.imgur.helpers.IntentHelper;
 import com.pockru.dongzakgol.module.tumblr.service.TumblrOAuthActivity;
 import com.pockru.dongzakgol.module.tumblr.service.TumblrUploadImg;
 import com.pockru.dongzakgol.util.Preference;
 import com.pockru.dongzakgol.util.UrlCheckUtils;
+import com.pockru.dongzakgol.view.FavoriteCategoryView;
 import com.pockru.dongzakgol.webview.DZGWebView;
 import com.pockru.dongzakgol.webview.DZGWebViewClient;
 import com.pockru.dongzakgol.webview.UrlConts;
@@ -48,14 +49,14 @@ import com.tumblr.jumblr.types.PhotoPost;
 import java.util.Arrays;
 
 import io.realm.Realm;
-import io.realm.RealmChangeListener;
 import io.realm.RealmConfiguration;
 import io.realm.RealmResults;
 
 public class MainActivity extends BaseActivity
         implements DZGWebViewClient.InteractWithAvtivity,
         DZGWebView.PageScrollState,
-        ActivityCompat.OnRequestPermissionsResultCallback {
+        ActivityCompat.OnRequestPermissionsResultCallback,
+        FavoriteCategoryView.InteractionFavoriteView {
 
     private static final String FIRE_BASE_URL = "https://dongzakgol.firebaseio.com/";
 
@@ -122,7 +123,7 @@ public class MainActivity extends BaseActivity
             public boolean onNavigationItemSelected(MenuItem item) {
                 Category category = realm.where(Category.class).equalTo("name", String.valueOf(item.getTitle())).findFirst();
                 if (category != null) {
-                    mWebView.loadUrl(UrlConts.MAIN_URL + "/" + category.getKey());
+                    loadMid(category.getKey());
                     drawer.closeDrawer(GravityCompat.START);
                     return true;
                 }
@@ -172,7 +173,10 @@ public class MainActivity extends BaseActivity
 
                 realm.beginTransaction();
                 for (DataSnapshot child : dataSnapshot.getChildren()) {
-                    Category category = new Category();
+                    Category category = realm.where(Category.class).equalTo("id", (Long) child.child("id").getValue()).findFirst();
+                    if (category == null) {
+                        category = new Category();
+                    }
                     category.setKey(child.getKey());
                     category.setId((Long) child.child("id").getValue());
                     category.setOrder((Long) child.child("order").getValue());
@@ -384,6 +388,11 @@ public class MainActivity extends BaseActivity
         mMid = mid;
     }
 
+    private void loadMid(String mid) {
+        setMid(mid);
+        mWebView.loadUrl(UrlConts.MAIN_URL + "/" + mid);
+    }
+
     @Override
     public void setAct(String act) {
         switch (act) {
@@ -474,6 +483,13 @@ public class MainActivity extends BaseActivity
                     Toast.makeText(getApplicationContext(), "권한 동의를 하셔야 서비스를 이용할 수 있습니다.", Toast.LENGTH_LONG).show();
                 }
                 break;
+        }
+    }
+
+    @Override
+    public void clickFavoriteItem(Category category) {
+        if (category != null && mWebView != null) {
+            loadMid(category.getKey());
         }
     }
 }

@@ -1,26 +1,60 @@
 package com.pockru.dongzakgol.model;
 
+import java.lang.annotation.Annotation;
+
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
+import io.realm.annotations.RealmClass;
+
 /**
- * Created by rhpark on 15. 12. 26..
+ * Created by Ravy on 16. 3. 20..
  */
-public class Category {
+public class Category extends RealmObject {
 
-    public String name;
-    public String link;
+    @PrimaryKey
+    private Long id;
+    private String key;
+    private String name;
+    private Long order;
+    private boolean isFavorite = false;
 
-    public Category(String name, String link) {
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
         this.name = name;
-        this.link = link;
     }
 
-    public Category() {
+    public Long getOrder() {
+        return order;
     }
 
-    @Override
-    public String toString() {
-        return "Category{" +
-                "name='" + name + '\'' +
-                ", link='" + link + '\'' +
-                '}';
+    public void setOrder(Long order) {
+        this.order = order;
+    }
+
+    public boolean isFavorite() {
+        return isFavorite;
+    }
+
+    public void setIsFavorite(boolean isFavorite) {
+        this.isFavorite = isFavorite;
     }
 }

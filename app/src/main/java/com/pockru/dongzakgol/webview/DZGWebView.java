@@ -13,7 +13,6 @@ import android.os.Environment;
 import android.os.Vibrator;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.webkit.CookieManager;
 import android.webkit.DownloadListener;
@@ -24,24 +23,13 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-import android.widget.ZoomButtonsController;
 
 import com.pockru.dongzakgol.BuildConfig;
 import com.pockru.dongzakgol.Const;
-import com.pockru.dongzakgol.DzkApplication;
 import com.pockru.dongzakgol.R;
-import com.pockru.dongzakgol.model.Category;
 import com.pockru.dongzakgol.util.DialogUtil;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
-import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**

@@ -8,21 +8,15 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.net.http.SslError;
-import android.text.TextUtils;
-import android.util.Log;
-import android.webkit.HttpAuthHandler;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
-import com.pockru.dongzakgol.Const;
 import com.pockru.dongzakgol.R;
-import com.pockru.dongzakgol.model.Category;
 import com.pockru.dongzakgol.util.UrlCheckUtils;
 
 import java.net.URISyntaxException;
-import java.util.List;
 
 /**
  * Created by 래형 on 2015-12-24.
