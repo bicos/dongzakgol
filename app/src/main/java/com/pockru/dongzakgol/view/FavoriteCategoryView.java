@@ -40,6 +40,8 @@ public class FavoriteCategoryView extends LinearLayout {
 
     LinearLayout container;
 
+    InteractionFavoriteView interactionFavoriteView;
+
     private void init(final Context context) {
 
         realmConfig = new RealmConfiguration.Builder(context).build();
@@ -107,13 +109,15 @@ public class FavoriteCategoryView extends LinearLayout {
         btnCate.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (context instanceof InteractionFavoriteView) {
-                    ((InteractionFavoriteView) context).clickFavoriteItem(category);
-                }
+                if(interactionFavoriteView != null) interactionFavoriteView.clickFavoriteItem(category);
             }
         });
 
         container.addView(btnCate);
+    }
+
+    public void setInteractionFavoriteView(InteractionFavoriteView interactionFavoriteView) {
+        this.interactionFavoriteView = interactionFavoriteView;
     }
 
     public interface InteractionFavoriteView {

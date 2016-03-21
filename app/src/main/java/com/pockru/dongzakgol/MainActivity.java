@@ -64,11 +64,9 @@ public class MainActivity extends BaseActivity
 
     private String mMid = UrlConts.MAIN_MID;
 
+    private DrawerLayout mDrawer;
     private SwipeRefreshLayout mRefreshLayout;
-//    private TextView mTvHeaderMsg;
-
     private NavigationView navigationView;
-//
     private AdView mAdView;
 
     boolean isWriteMode = false;
@@ -111,10 +109,10 @@ public class MainActivity extends BaseActivity
             }
         });
 
-        final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
+                this, mDrawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        mDrawer.setDrawerListener(toggle);
         toggle.syncState();
 
         navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -124,7 +122,7 @@ public class MainActivity extends BaseActivity
                 Category category = realm.where(Category.class).equalTo("name", String.valueOf(item.getTitle())).findFirst();
                 if (category != null) {
                     loadMid(category.getKey());
-                    drawer.closeDrawer(GravityCompat.START);
+                    mDrawer.closeDrawer(GravityCompat.START);
                     return true;
                 }
 
@@ -155,6 +153,9 @@ public class MainActivity extends BaseActivity
         } else {
             mAdView.setVisibility(View.GONE);
         }
+
+        FavoriteCategoryView categoryView = (FavoriteCategoryView) findViewById(R.id.favorite_category);
+        categoryView.setInteractionFavoriteView(this);
 
         mCateList = realm.where(Category.class).findAll();
 
@@ -224,19 +225,23 @@ public class MainActivity extends BaseActivity
 
     @Override
     public void onBackPressed() {
-        WebBackForwardList webBackForwardList = mWebView.copyBackForwardList();
-
-        if (webBackForwardList != null
-                && webBackForwardList.getSize() > 1
-                && webBackForwardList.getItemAtIndex(webBackForwardList.getCurrentIndex() - 1) != null) {
-            String backUrl = webBackForwardList.getItemAtIndex(webBackForwardList.getCurrentIndex() - 1).getUrl();
-            UrlCheckUtils.checkUrl(backUrl, this);
-        }
-
-        if (mWebView != null && mWebView.canGoBack()) {
-            mWebView.goBack();
+        if (mDrawer.isDrawerOpen(GravityCompat.START)) {
+            mDrawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            WebBackForwardList webBackForwardList = mWebView.copyBackForwardList();
+
+            if (webBackForwardList != null
+                    && webBackForwardList.getSize() > 1
+                    && webBackForwardList.getItemAtIndex(webBackForwardList.getCurrentIndex() - 1) != null) {
+                String backUrl = webBackForwardList.getItemAtIndex(webBackForwardList.getCurrentIndex() - 1).getUrl();
+                UrlCheckUtils.checkUrl(backUrl, this);
+            }
+
+            if (mWebView != null && mWebView.canGoBack()) {
+                mWebView.goBack();
+            } else {
+                super.onBackPressed();
+            }
         }
     }
 
