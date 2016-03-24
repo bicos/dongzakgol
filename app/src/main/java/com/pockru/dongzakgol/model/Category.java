@@ -1,10 +1,7 @@
 package com.pockru.dongzakgol.model;
 
-import java.lang.annotation.Annotation;
-
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
-import io.realm.annotations.RealmClass;
 
 /**
  * Created by Ravy on 16. 3. 20..
@@ -16,6 +13,7 @@ public class Category extends RealmObject {
     private String key;
     private String name;
     private Long order;
+    private Long favOrder;
     private boolean isFavorite = false;
 
     public Long getId() {
@@ -56,5 +54,25 @@ public class Category extends RealmObject {
 
     public void setIsFavorite(boolean isFavorite) {
         this.isFavorite = isFavorite;
+    }
+
+    public Long getFavOrder() {
+        return favOrder;
+    }
+
+    public void setFavOrder(Long favOrder) {
+        this.favOrder = favOrder;
+    }
+
+    @Override
+    public String toString() {
+        return "Category{" +
+                "id=" + id +
+                ", key='" + key + '\'' +
+                ", name='" + name + '\'' +
+                ", order=" + order +
+                ", favOrder=" + favOrder +
+                ", isFavorite=" + isFavorite +
+                '}';
     }
 }

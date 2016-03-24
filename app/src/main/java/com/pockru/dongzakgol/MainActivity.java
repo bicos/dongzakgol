@@ -36,6 +36,7 @@ import com.google.android.gms.ads.AdView;
 import com.pockru.dongzakgol.model.Category;
 import com.pockru.dongzakgol.module.imgur.helpers.DocumentHelper;
 import com.pockru.dongzakgol.module.imgur.helpers.IntentHelper;
+import com.pockru.dongzakgol.module.realm.DzgRealm;
 import com.pockru.dongzakgol.module.tumblr.service.TumblrOAuthActivity;
 import com.pockru.dongzakgol.module.tumblr.service.TumblrUploadImg;
 import com.pockru.dongzakgol.util.Preference;
@@ -49,7 +50,6 @@ import com.tumblr.jumblr.types.PhotoPost;
 import java.util.Arrays;
 
 import io.realm.Realm;
-import io.realm.RealmConfiguration;
 import io.realm.RealmResults;
 
 public class MainActivity extends BaseActivity
@@ -74,7 +74,6 @@ public class MainActivity extends BaseActivity
     Firebase myFirebaseRef;
 
     private Realm realm;
-    private RealmConfiguration realmConfig;
     RealmResults<Category> mCateList;
 
     @Override
@@ -84,8 +83,7 @@ public class MainActivity extends BaseActivity
         Firebase.setAndroidContext(this);
         myFirebaseRef = new Firebase(FIRE_BASE_URL);
 
-        realmConfig = new RealmConfiguration.Builder(this).build();
-        realm = Realm.getInstance(realmConfig);
+        realm = DzgRealm.getInstance(this);
 
         setContentView(R.layout.activity_main);
 
