@@ -35,6 +35,11 @@
             android:configChanges="orientation|screenSize" />
 
         <activity
+            android:name=".FavoriteCategoryActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="자주 가는 카테고리" />
+
+        <activity
             android:name=".module.tumblr.service.TumblrOAuthActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:theme="@style/AppTheme.Translucent"/>
