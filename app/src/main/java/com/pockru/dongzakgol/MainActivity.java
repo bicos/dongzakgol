@@ -47,9 +47,12 @@ import com.pockru.dongzakgol.webview.DZGWebViewClient;
 import com.pockru.dongzakgol.webview.UrlConts;
 import com.tumblr.jumblr.types.PhotoPost;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import io.realm.Realm;
+import io.realm.RealmQuery;
 import io.realm.RealmResults;
 
 public class MainActivity extends BaseActivity
@@ -171,7 +174,12 @@ public class MainActivity extends BaseActivity
                 SubMenu subMenu = item.getSubMenu();
 
                 realm.beginTransaction();
+
+                RealmQuery<Category> q = realm.where(Category.class);
+
                 for (DataSnapshot child : dataSnapshot.getChildren()) {
+                    q = q.notEqualTo("id", (Long) child.child("id").getValue());
+
                     Category category = realm.where(Category.class).equalTo("id", (Long) child.child("id").getValue()).findFirst();
                     if (category == null) {
                         category = new Category();
@@ -189,6 +197,11 @@ public class MainActivity extends BaseActivity
                         subMenu.add(Menu.NONE, category.getId().intValue(), category.getOrder().intValue(), category.getName());
                     }
                 }
+
+                if (q.count() > 0) {
+                    q.findAll().clear();
+                }
+
                 realm.commitTransaction();
             }
 
@@ -480,11 +493,14 @@ public class MainActivity extends BaseActivity
 
         switch (requestCode) {
             case REQUEST_EXTERNAL_STORAGE:
-                if (Arrays.asList(grantResults).contains(PackageManager.PERMISSION_GRANTED)) {
-                    IntentHelper.chooseFileIntent(MainActivity.this);
-                } else {
-                    Toast.makeText(getApplicationContext(), "권한 동의를 하셔야 서비스를 이용할 수 있습니다.", Toast.LENGTH_LONG).show();
+                for (int grantResult : grantResults) {
+                    if (grantResult != PackageManager.PERMISSION_GRANTED) {
+                        Toast.makeText(getApplicationContext(), "권한 동의를 하셔야 서비스를 이용할 수 있습니다.", Toast.LENGTH_LONG).show();
+                        break;
+                    }
                 }
+
+                IntentHelper.chooseFileIntent(MainActivity.this);
                 break;
         }
     }
