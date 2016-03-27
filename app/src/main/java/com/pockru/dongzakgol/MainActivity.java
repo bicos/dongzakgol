@@ -1,7 +1,6 @@
 package com.pockru.dongzakgol;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -9,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.GravityCompat;
@@ -47,10 +47,6 @@ import com.pockru.dongzakgol.webview.DZGWebViewClient;
 import com.pockru.dongzakgol.webview.UrlConts;
 import com.tumblr.jumblr.types.PhotoPost;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import io.realm.Realm;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
@@ -70,7 +66,6 @@ public class MainActivity extends BaseActivity
     private DrawerLayout mDrawer;
     private SwipeRefreshLayout mRefreshLayout;
     private NavigationView navigationView;
-    private AdView mAdView;
 
     boolean isWriteMode = false;
 
@@ -145,7 +140,7 @@ public class MainActivity extends BaseActivity
         mWebView.setOnPageScrollSateListener(this);
         mWebView.loadUrl(UrlConts.getMainUrl());
 
-        mAdView = (AdView) findViewById(R.id.adView);
+        AdView mAdView = (AdView) findViewById(R.id.adView);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             AdRequest.Builder adRequestBuilder = new AdRequest.Builder();
@@ -393,11 +388,9 @@ public class MainActivity extends BaseActivity
         mWebView.loadJavaScript(UrlConts.insertImageJS(result.getPhotos().get(0).getOriginalSize().getUrl()));
     }
 
-    private static final String PREFIX_BOARD = "board";
-
     @Override
     public void setMid(String mid) {
-        if (mid != null && mMid.equalsIgnoreCase(mid) == false) {
+        if (mid != null && !mMid.equalsIgnoreCase(mid)) {
             sendEvent("category", mid, "");
         }
 
@@ -452,27 +445,6 @@ public class MainActivity extends BaseActivity
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
 
-    /**
-     * Checks if the app has permission to write to device storage
-     * <p/>
-     * If the app does not has permission then the user will be prompted to grant permissions
-     *
-     * @param activity
-     */
-    public static void verifyStoragePermissions(Activity activity) {
-        // Check if we have write permission
-        int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-
-        if (permission != PackageManager.PERMISSION_GRANTED) {
-            // We don't have permission so prompt the user
-            ActivityCompat.requestPermissions(
-                    activity,
-                    PERMISSIONS_STORAGE,
-                    REQUEST_EXTERNAL_STORAGE
-            );
-        }
-    }
-
     private void showChooseFile() {
         int permission = ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
         if (permission != PackageManager.PERMISSION_GRANTED) {
@@ -488,7 +460,7 @@ public class MainActivity extends BaseActivity
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         switch (requestCode) {
