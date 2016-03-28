@@ -440,6 +440,8 @@ public class MainActivity extends BaseActivity
 
     // Storage Permissions
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
+    public static final int REQUEST_WRITE_EXTERNAL_STORAGE = 2;
+
     private static String[] PERMISSIONS_STORAGE = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE
@@ -473,6 +475,16 @@ public class MainActivity extends BaseActivity
                 }
 
                 IntentHelper.chooseFileIntent(MainActivity.this);
+                break;
+            case REQUEST_WRITE_EXTERNAL_STORAGE:
+                for (int grantResult : grantResults) {
+                    if (grantResult != PackageManager.PERMISSION_GRANTED) {
+                        Toast.makeText(getApplicationContext(), "권한 동의를 하셔야 서비스를 이용할 수 있습니다.", Toast.LENGTH_LONG).show();
+                        break;
+                    }
+                }
+
+                mWebView.saveImg();
                 break;
         }
     }

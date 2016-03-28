@@ -1,16 +1,20 @@
 package com.pockru.dongzakgol.webview;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Vibrator;
+import android.support.v4.app.ActivityCompat;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
@@ -26,6 +30,7 @@ import android.widget.Toast;
 
 import com.pockru.dongzakgol.BuildConfig;
 import com.pockru.dongzakgol.Const;
+import com.pockru.dongzakgol.MainActivity;
 import com.pockru.dongzakgol.R;
 import com.pockru.dongzakgol.util.DialogUtil;
 
@@ -46,6 +51,8 @@ public class DZGWebView extends WebView {
         super(context, attrs);
         init();
     }
+
+    private HitTestResult mResult;
 
     private void init() {
 
@@ -68,9 +75,21 @@ public class DZGWebView extends WebView {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     switch (which) {
-                                        case 0:
-                                            imageDownload(result);
+                                        case 0: {
+                                            int permission = ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                                            if (permission != PackageManager.PERMISSION_GRANTED) {
+                                                mResult = result;
+                                                // We don't have permission so prompt the user
+                                                ActivityCompat.requestPermissions(
+                                                        (Activity) getContext(),
+                                                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                                        MainActivity.REQUEST_WRITE_EXTERNAL_STORAGE
+                                                );
+                                            } else {
+                                                imageDownload(result);
+                                            }
                                             break;
+                                        }
                                         case 1:
                                             saveUrl(result.getExtra());
                                             break;
@@ -266,6 +285,15 @@ public class DZGWebView extends WebView {
                 mPageScrollState.onStateDown();
             }
         }
+    }
+
+    public void saveImg(){
+        int permission = ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (permission == PackageManager.PERMISSION_GRANTED) {
+            imageDownload(mResult);
+        }
+
+        mResult = null;
     }
 
     class CustomDownloadListener implements DownloadListener {
