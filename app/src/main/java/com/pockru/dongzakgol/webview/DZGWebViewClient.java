@@ -143,5 +143,8 @@ public class DZGWebViewClient extends WebViewClient {
         void setAct(String act);
         void notifyUrlLoadFinish();
         void notifyUrlLoadStart();
+
+        void onLogin(String msg);
+        void onLogout(String msg);
     }
 }

@@ -155,6 +155,9 @@ public class DZGWebView extends WebView {
 //            addJavascriptInterface(new JSBridge((DZGWebViewClient.InteractWithAvtivity) getContext()),
 //                    JSBridge.TAG);
 //        }
+        if (getContext() instanceof DZGWebViewClient.InteractWithAvtivity) {
+            addJavascriptInterface(new DzgolBridge((DZGWebViewClient.InteractWithAvtivity) getContext()), DzgolBridge.TAG);
+        }
 
         setDownloadListener(new CustomDownloadListener());
 
@@ -300,6 +303,26 @@ public class DZGWebView extends WebView {
         public void onDownloadStart(final String url, final String userAgent, final String contentDisposition, final String mimetype, final long contentLength) {
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             getContext().startActivity(intent);
+        }
+    }
+
+    public static class DzgolBridge {
+        public static final String TAG = DzgolBridge.class.getSimpleName();
+
+        DZGWebViewClient.InteractWithAvtivity mListener;
+
+        public DzgolBridge(DZGWebViewClient.InteractWithAvtivity listener) {
+            mListener = listener;
+        }
+
+        @JavascriptInterface
+        public void login(String msg) {
+            mListener.onLogin(msg);
+        }
+
+        @JavascriptInterface
+        public void logout(String msg) {
+            mListener.onLogout(msg);
         }
     }
 

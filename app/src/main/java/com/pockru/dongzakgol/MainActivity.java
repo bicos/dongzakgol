@@ -25,6 +25,7 @@ import android.view.View;
 import android.webkit.WebBackForwardList;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.client.DataSnapshot;
@@ -66,6 +67,8 @@ public class MainActivity extends BaseActivity
     private DrawerLayout mDrawer;
     private SwipeRefreshLayout mRefreshLayout;
     private NavigationView navigationView;
+
+    private TextView mDrawerHeader;
 
     boolean isWriteMode = false;
 
@@ -125,6 +128,7 @@ public class MainActivity extends BaseActivity
                 return false;
             }
         });
+        mDrawerHeader = (TextView) navigationView.getHeaderView(0).findViewById(R.id.tv_header_msg);
 
         mRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_layout);
         mRefreshLayout.setColorSchemeColors(R.color.refresh_progress_1, R.color.refresh_progress_2);
@@ -422,6 +426,34 @@ public class MainActivity extends BaseActivity
     public void notifyUrlLoadStart() {
         mRefreshLayout.setRefreshing(false);
 //        collapseFab();
+    }
+
+    boolean isLogin = false;
+
+    @Override
+    public void onLogin(final String msg) {
+        this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (!isLogin) {
+                    isLogin = true;
+                    mDrawerHeader.setText(msg + "님 환영합니다!");
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onLogout(final String msg) {
+        this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (isLogin) {
+                    isLogin = false;
+                    mDrawerHeader.setText(msg);
+                }
+            }
+        });
     }
 
     @Override
