@@ -1,6 +1,7 @@
 package com.pockru.dongzakgol.webview;
 
 import android.net.Uri;
+import android.text.TextUtils;
 
 /**
  * Created by 래형 on 2015-12-24.
@@ -51,6 +52,7 @@ public class UrlConts {
 
     public static final String PARAM_MID = "mid";
     public static final String PARAM_ACT = "act";
+    public static final String PARAM_SRL = "document_srl";
 
     public static final String MAIN_MID = "main";
 
@@ -111,6 +113,36 @@ public class UrlConts {
         uri = uri.buildUpon()
                 .appendQueryParameter(PARAM_MID, mid).build();
         return uri.toString();
+    }
+
+    public static String getLoginUrl(String mid, String documentSrl){
+        Uri.Builder uriBuilder = Uri.parse(MAIN_URL + "/" +MAIN_PATH).buildUpon();
+
+        if (TextUtils.isEmpty(mid) == false) {
+            uriBuilder.appendQueryParameter("mid",mid);
+        }
+
+        if (TextUtils.isEmpty(documentSrl) == false) {
+            uriBuilder.appendQueryParameter("document_srl", documentSrl);
+        }
+
+        uriBuilder.appendQueryParameter("act", "dispMemberLoginForm");
+        return uriBuilder.toString();
+    }
+
+    public static String getLogoutUrl(String mid, String documentSrl){
+        Uri.Builder uriBuilder = Uri.parse(MAIN_URL + "/" +MAIN_PATH).buildUpon();
+
+        if (TextUtils.isEmpty(mid) == false) {
+            uriBuilder.appendQueryParameter("mid",mid);
+        }
+
+        if (TextUtils.isEmpty(documentSrl) == false) {
+            uriBuilder.appendQueryParameter("document_srl", documentSrl);
+        }
+
+        uriBuilder.appendQueryParameter("act", "dispMemberLogout");
+        return uriBuilder.toString();
     }
 
     public static final String INSERT_INTO_JS = "javascript:(function(){document.getElementById(\"editor\").innerHTML += '<img src= \"%s\">'})()";

@@ -17,6 +17,8 @@ public class UrlCheckUtils {
         if (url != null && mListener != null) {
             Uri uri = Uri.parse(url);
             if (uri != null && uri.isOpaque() == false) {
+                boolean isSetMid = false;
+                boolean isSetSrl = false;
                 List<String> segments = uri.getPathSegments();
 
                 if (segments != null && segments.size() > 0) {
@@ -24,14 +26,38 @@ public class UrlCheckUtils {
                         String mid = segments.get(0);
 
                         if (TextUtils.isEmpty(mid) == false) {
+                            isSetMid = true;
                             mListener.setMid(mid);
+                        }
+                    }
+                    if (segments.size() > 1) {
+                        String srl = segments.get(1);
+
+                        if (TextUtils.isEmpty(srl) == false) {
+                            isSetSrl = true;
+                            mListener.setSrl(srl);
                         }
                     }
                 }
 
                 String mid = uri.getQueryParameter(UrlConts.PARAM_MID);
                 if (TextUtils.isEmpty(mid) == false) {
+                    isSetMid = true;
                     mListener.setMid(mid);
+                }
+
+                if (isSetMid == false){
+                    mListener.setMid("");
+                }
+
+                String srl = uri.getQueryParameter(UrlConts.PARAM_SRL);
+                if (TextUtils.isEmpty(srl) == false) {
+                    isSetSrl = true;
+                    mListener.setSrl(srl);
+                }
+
+                if (isSetSrl == false) {
+                    mListener.setSrl("");
                 }
 
                 String act = uri.getQueryParameter(UrlConts.PARAM_ACT);

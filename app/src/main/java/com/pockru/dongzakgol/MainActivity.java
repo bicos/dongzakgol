@@ -23,6 +23,7 @@ import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 import android.webkit.WebBackForwardList;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -62,17 +63,20 @@ public class MainActivity extends BaseActivity
 
     private DZGWebView mWebView;
 
-    private String mMid = UrlConts.MAIN_MID;
+    private String mMid = "";
+    private String mSrl = "";
 
     private DrawerLayout mDrawer;
     private SwipeRefreshLayout mRefreshLayout;
     private NavigationView navigationView;
 
     private TextView mDrawerHeader;
+    private Button mBtnLogin;
+    private Button mBtnLogout;
 
-    boolean isWriteMode = false;
+    private boolean isWriteMode = false;
 
-    Firebase myFirebaseRef;
+    private Firebase myFirebaseRef;
 
     private Realm realm;
     RealmResults<Category> mCateList;
@@ -129,6 +133,22 @@ public class MainActivity extends BaseActivity
             }
         });
         mDrawerHeader = (TextView) navigationView.getHeaderView(0).findViewById(R.id.tv_header_msg);
+        mBtnLogin = (Button) navigationView.getHeaderView(0).findViewById(R.id.btn_login);
+        mBtnLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mWebView.loadUrl(UrlConts.getLoginUrl(mMid, mSrl));
+                mDrawer.closeDrawer(GravityCompat.START);
+            }
+        });
+        mBtnLogout = (Button) navigationView.getHeaderView(0).findViewById(R.id.btn_logout);
+        mBtnLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mWebView.loadUrl(UrlConts.getLogoutUrl(mMid, mSrl));
+                mDrawer.closeDrawer(GravityCompat.START);
+            }
+        });
 
         mRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_layout);
         mRefreshLayout.setColorSchemeColors(R.color.refresh_progress_1, R.color.refresh_progress_2);
@@ -238,14 +258,14 @@ public class MainActivity extends BaseActivity
         if (mDrawer.isDrawerOpen(GravityCompat.START)) {
             mDrawer.closeDrawer(GravityCompat.START);
         } else {
-            WebBackForwardList webBackForwardList = mWebView.copyBackForwardList();
-
-            if (webBackForwardList != null
-                    && webBackForwardList.getSize() > 1
-                    && webBackForwardList.getItemAtIndex(webBackForwardList.getCurrentIndex() - 1) != null) {
-                String backUrl = webBackForwardList.getItemAtIndex(webBackForwardList.getCurrentIndex() - 1).getUrl();
-                UrlCheckUtils.checkUrl(backUrl, this);
-            }
+//            WebBackForwardList webBackForwardList = mWebView.copyBackForwardList();
+//
+//            if (webBackForwardList != null
+//                    && webBackForwardList.getSize() > 1
+//                    && webBackForwardList.getItemAtIndex(webBackForwardList.getCurrentIndex() - 1) != null) {
+//                String backUrl = webBackForwardList.getItemAtIndex(webBackForwardList.getCurrentIndex() - 1).getUrl();
+//                UrlCheckUtils.checkUrl(backUrl, this);
+//            }
 
             if (mWebView != null && mWebView.canGoBack()) {
                 mWebView.goBack();
@@ -402,7 +422,6 @@ public class MainActivity extends BaseActivity
     }
 
     private void loadMid(String mid) {
-        setMid(mid);
         mWebView.loadUrl(UrlConts.MAIN_URL + "/" + mid);
     }
 
@@ -423,6 +442,11 @@ public class MainActivity extends BaseActivity
     }
 
     @Override
+    public void setSrl(String srl) {
+        mSrl = srl;
+    }
+
+    @Override
     public void notifyUrlLoadStart() {
         mRefreshLayout.setRefreshing(false);
 //        collapseFab();
@@ -438,6 +462,9 @@ public class MainActivity extends BaseActivity
                 if (!isLogin) {
                     isLogin = true;
                     mDrawerHeader.setText(msg + "님 환영합니다!");
+
+                    mBtnLogin.setVisibility(View.GONE);
+                    mBtnLogout.setVisibility(View.VISIBLE);
                 }
             }
         });
@@ -451,6 +478,9 @@ public class MainActivity extends BaseActivity
                 if (isLogin) {
                     isLogin = false;
                     mDrawerHeader.setText(msg);
+
+                    mBtnLogin.setVisibility(View.VISIBLE);
+                    mBtnLogout.setVisibility(View.GONE);
                 }
             }
         });

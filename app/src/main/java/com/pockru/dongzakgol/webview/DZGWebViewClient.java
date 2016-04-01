@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.net.http.SslError;
+import android.util.Log;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -141,9 +142,9 @@ public class DZGWebViewClient extends WebViewClient {
 
         void setMid(String mid);
         void setAct(String act);
+        void setSrl(String srl);
         void notifyUrlLoadFinish();
         void notifyUrlLoadStart();
-
         void onLogin(String msg);
         void onLogout(String msg);
     }
