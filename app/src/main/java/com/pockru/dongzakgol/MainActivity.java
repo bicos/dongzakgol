@@ -449,6 +449,13 @@ public class MainActivity extends BaseActivity
 //        collapseFab();
     }
 
+    @Override
+    public void notifyUrlLoadFinish() {
+        if (mAdView != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            mAdView.setVisibility(View.VISIBLE);
+        }
+    }
+
     boolean isLogin = false;
 
     @Override
@@ -495,10 +502,6 @@ public class MainActivity extends BaseActivity
                 }
             }
         });
-    }
-
-    @Override
-    public void notifyUrlLoadFinish() {
     }
 
     @Override
