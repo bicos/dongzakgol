@@ -17,12 +17,10 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
-import android.webkit.WebBackForwardList;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
@@ -42,7 +40,6 @@ import com.pockru.dongzakgol.module.realm.DzgRealm;
 import com.pockru.dongzakgol.module.tumblr.service.TumblrOAuthActivity;
 import com.pockru.dongzakgol.module.tumblr.service.TumblrUploadImg;
 import com.pockru.dongzakgol.util.Preference;
-import com.pockru.dongzakgol.util.UrlCheckUtils;
 import com.pockru.dongzakgol.view.FavoriteCategoryView;
 import com.pockru.dongzakgol.webview.DZGWebView;
 import com.pockru.dongzakgol.webview.DZGWebViewClient;
@@ -76,17 +73,17 @@ public class MainActivity extends BaseActivity
 
     private boolean isWriteMode = false;
 
-    private Firebase myFirebaseRef;
-
     private Realm realm;
     RealmResults<Category> mCateList;
+
+    private AdView mAdView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         Firebase.setAndroidContext(this);
-        myFirebaseRef = new Firebase(FIRE_BASE_URL);
+        Firebase myFirebaseRef = new Firebase(FIRE_BASE_URL);
 
         realm = DzgRealm.getInstance(this);
 
@@ -160,11 +157,11 @@ public class MainActivity extends BaseActivity
         });
 
         mWebView = (DZGWebView) findViewById(R.id.webview);
-        mWebView.setProgressBar((ProgressBar)findViewById(R.id.pb_webview));
+        mWebView.setProgressBar((ProgressBar) findViewById(R.id.pb_webview));
         mWebView.setOnPageScrollSateListener(this);
         mWebView.loadUrl(UrlConts.getMainUrl());
 
-        AdView mAdView = (AdView) findViewById(R.id.adView);
+        mAdView = (AdView) findViewById(R.id.adView);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             AdRequest.Builder adRequestBuilder = new AdRequest.Builder();
@@ -210,7 +207,7 @@ public class MainActivity extends BaseActivity
                     realm.copyToRealmOrUpdate(category);
 
                     MenuItem cateItem;
-                    if ((cateItem = subMenu.findItem(category.getId().intValue())) != null){
+                    if ((cateItem = subMenu.findItem(category.getId().intValue())) != null) {
                         cateItem.setTitle(category.getName());
                     } else {
                         subMenu.add(Menu.NONE, category.getId().intValue(), category.getOrder().intValue(), category.getName());
@@ -226,7 +223,7 @@ public class MainActivity extends BaseActivity
 
             @Override
             public void onCancelled(FirebaseError firebaseError) {
-                Log.i("test","onCancelled : "+firebaseError.toString());
+
             }
         });
     }
@@ -481,6 +478,18 @@ public class MainActivity extends BaseActivity
 
                     mBtnLogin.setVisibility(View.VISIBLE);
                     mBtnLogout.setVisibility(View.GONE);
+                }
+            }
+        });
+    }
+
+    @Override
+    public void isShowAd(final boolean isShowAd) {
+        this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mAdView != null) {
+                    mAdView.setVisibility(isShowAd ? View.GONE : View.VISIBLE);
                 }
             }
         });

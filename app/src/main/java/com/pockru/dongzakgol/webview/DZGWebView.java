@@ -324,6 +324,11 @@ public class DZGWebView extends WebView {
         public void logout(String msg) {
             mListener.onLogout(msg);
         }
+
+        @JavascriptInterface
+        public void isShowAd(boolean isShowAd) {
+            mListener.isShowAd(isShowAd);
+        }
     }
 
     public static class JSBridge {

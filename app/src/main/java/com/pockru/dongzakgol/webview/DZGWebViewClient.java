@@ -147,5 +147,6 @@ public class DZGWebViewClient extends WebViewClient {
         void notifyUrlLoadStart();
         void onLogin(String msg);
         void onLogout(String msg);
+        void isShowAd(boolean isShowAd);
     }
 }
