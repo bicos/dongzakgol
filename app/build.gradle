@@ -47,7 +47,7 @@ dependencies {
         exclude module: 'httpclient'
     }
 
-    compile 'com.firebase:firebase-client-android:2.5.1+'
+    compile 'com.firebase:firebase-client-android:2.5.2'
 }
 
 apply plugin: 'com.google.gms.google-services'

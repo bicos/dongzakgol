@@ -488,8 +488,10 @@ public class MainActivity extends BaseActivity
         this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (mAdView != null) {
-                    mAdView.setVisibility(isShowAd ? View.GONE : View.VISIBLE);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    if (mAdView != null) {
+                        mAdView.setVisibility(isShowAd ? View.GONE : View.VISIBLE);
+                    }
                 }
             }
         });
