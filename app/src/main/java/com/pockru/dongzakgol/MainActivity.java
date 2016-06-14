@@ -27,12 +27,13 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.firebase.client.DataSnapshot;
-import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.ValueEventListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.pockru.dongzakgol.model.Category;
 import com.pockru.dongzakgol.module.imgur.helpers.DocumentHelper;
 import com.pockru.dongzakgol.module.imgur.helpers.IntentHelper;
@@ -56,7 +57,7 @@ public class MainActivity extends BaseActivity
         ActivityCompat.OnRequestPermissionsResultCallback,
         FavoriteCategoryView.InteractionFavoriteView {
 
-    private static final String FIRE_BASE_URL = "https://dongzakgol.firebaseio.com/";
+//    private static final String FIRE_BASE_URL = "https://dongzakgol.firebaseio.com/";
 
     private DZGWebView mWebView;
 
@@ -82,8 +83,9 @@ public class MainActivity extends BaseActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Firebase.setAndroidContext(this);
-        Firebase myFirebaseRef = new Firebase(FIRE_BASE_URL);
+//        Firebase.setAndroidContext(this);
+//        Firebase myFirebaseRef = new Firebase(FIRE_BASE_URL);
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
 
         realm = DzgRealm.getInstance(this);
 
@@ -183,7 +185,7 @@ public class MainActivity extends BaseActivity
             }
         }
 
-        myFirebaseRef.child("category").addListenerForSingleValueEvent(new ValueEventListener() {
+        mDatabase.child("category").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 MenuItem item = navigationView.getMenu().findItem(R.id.nav_cate_list);
@@ -222,9 +224,10 @@ public class MainActivity extends BaseActivity
             }
 
             @Override
-            public void onCancelled(FirebaseError firebaseError) {
+            public void onCancelled(DatabaseError databaseError) {
 
             }
+
         });
     }
 
@@ -411,10 +414,6 @@ public class MainActivity extends BaseActivity
 
     @Override
     public void setMid(String mid) {
-        if (mid != null && !mMid.equalsIgnoreCase(mid)) {
-            sendEvent("category", mid, "");
-        }
-
         mMid = mid;
     }
 
@@ -447,6 +446,26 @@ public class MainActivity extends BaseActivity
     public void notifyUrlLoadStart() {
         mRefreshLayout.setRefreshing(false);
 //        collapseFab();
+    }
+
+    @Override
+    public void notifyUrlLoading(String url) {
+        if (!TextUtils.isEmpty(url)) {
+            Uri uri = Uri.parse(url);
+            if (uri.isHierarchical()) {
+                if (uri.getQuery() != null) {
+                    sendEvent(uri.getQueryParameter("mid"), uri.getQueryParameter("document_srl"), "");
+                } else {
+                    if (uri.getPathSegments() != null){
+                        if (uri.getPathSegments().size() > 1) {
+                            sendEvent(uri.getPathSegments().get(0), uri.getPathSegments().get(1), "");
+                        } else if (uri.getPathSegments().size() > 0) {
+                            sendEvent(uri.getPathSegments().get(0), "", "");
+                        }
+                    }
+                }
+            }
+        }
     }
 
     @Override

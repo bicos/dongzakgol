@@ -9,8 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.webkit.ValueCallback;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 /**
  * Created by 래형 on 2015-12-24.
@@ -25,22 +24,13 @@ public class BaseActivity extends AppCompatActivity {
 
     public String mCameraPhotoPath;
 
-    private Tracker mTracker;
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        DzkApplication application = (DzkApplication) getApplication();
-        mTracker = application.getDefaultTracker();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        mTracker.setScreenName(BaseActivity.class.getSimpleName());
-        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
     }
 
     public ValueCallback<Uri> mUploadMessage;
@@ -79,9 +69,12 @@ public class BaseActivity extends AppCompatActivity {
         }
     }
 
-    public void sendEvent(String category, String action, String label){
-        mTracker.send(new HitBuilders.EventBuilder(category, action)
-                .setLabel(label).build());
+    public void sendEvent(String id, String name, String type){
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, id);
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, name);
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, type);
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
     }
 
     @Override

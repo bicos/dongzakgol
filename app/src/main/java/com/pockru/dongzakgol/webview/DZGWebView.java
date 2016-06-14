@@ -129,16 +129,15 @@ public class DZGWebView extends WebView {
             getSettings().setDisplayZoomControls(false);
         }
         // mWebView.getSettings().setSupportMultipleWindows(true);
-
         // mWebView.getSettings().setLoadWithOverviewMode(true);
         getSettings().setUseWideViewPort(true);
 
         // Setting Local Storage
         getSettings().setDatabaseEnabled(true);
         getSettings().setDomStorageEnabled(true);
-        String databasePath = getContext().getDir("database", Context.MODE_PRIVATE).getPath();
-        // Log.i(TAG, "databasePath : "+databasePath);
-        getSettings().setDatabasePath(databasePath);
+//        String databasePath = getContext().getDir("database", Context.MODE_PRIVATE).getPath();
+//        // Log.i(TAG, "databasePath : "+databasePath);
+//        getSettings().setDatabasePath(databasePath);
 
         getSettings().setUserAgentString(getSettings().getUserAgentString() + "_" + UrlConts.UA_APP+"_"+ BuildConfig.VERSION_CODE);
 
@@ -255,7 +254,8 @@ public class DZGWebView extends WebView {
 
     @Override
     public void loadUrl(String url) {
-        loadUrl(url, getDefaultAdditionalHeader());
+//        loadUrl(url, getDefaultAdditionalHeader());
+        super.loadUrl(url);
         referer = url;
     }
 

@@ -1,5 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'com.google.gms.google-services'
 apply plugin: 'realm-android'
 
 android {
@@ -40,12 +39,14 @@ dependencies {
 
     compile 'com.android.support:appcompat-v7:23.4.0'
     compile 'com.android.support:design:23.4.0'
-    compile 'com.google.android.gms:play-services-base:9.0.0'
-    compile 'com.google.android.gms:play-services-analytics:9.0.0'
-    compile 'com.google.android.gms:play-services-gcm:9.0.0'
-    compile 'com.google.android.gms:play-services-ads:9.0.0'
-    compile 'com.firebase:firebase-client-android:2.5.2+'
+    compile 'com.google.android.gms:play-services-base:9.0.2'
+    compile 'com.google.android.gms:play-services-gcm:9.0.2'
+    compile 'com.google.android.gms:play-services-ads:9.0.2'
+    compile 'com.google.firebase:firebase-core:9.0.2'
+    compile 'com.google.firebase:firebase-database:9.0.2'
     compile 'org.jsoup:jsoup:1.8.2'
     compile 'com.squareup.retrofit:retrofit:1.9.0'
     compile 'com.tumblr:jumblr:0.0.11'
 }
+
+apply plugin: 'com.google.gms.google-services'

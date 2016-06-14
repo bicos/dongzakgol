@@ -28,7 +28,7 @@ public class DZGWebViewClient extends WebViewClient {
     private InteractWithAvtivity mListener;
 
     public DZGWebViewClient(Context context) {
-        mContext = context;
+        mContext = context.getApplicationContext();
         if (mContext instanceof InteractWithAvtivity) {
             mListener = (InteractWithAvtivity) mContext;
         }
@@ -49,6 +49,7 @@ public class DZGWebViewClient extends WebViewClient {
         Uri uri = Uri.parse(url);
         if (uri != null && (uri.getScheme().equals("http") || uri.getScheme().equals("https") || uri.getScheme().equals("javascript"))) {
             if (uri.getHost().contains(Uri.parse(UrlConts.MAIN_URL).getHost())) {
+                if (mListener != null) mListener.notifyUrlLoading(url);
                 view.loadUrl(url);
                 return true;
             } else {
@@ -145,6 +146,7 @@ public class DZGWebViewClient extends WebViewClient {
         void setSrl(String srl);
         void notifyUrlLoadFinish();
         void notifyUrlLoadStart();
+        void notifyUrlLoading(String url);
         void onLogin(String msg);
         void onLogout(String msg);
         void isShowAd(boolean isShowAd);
