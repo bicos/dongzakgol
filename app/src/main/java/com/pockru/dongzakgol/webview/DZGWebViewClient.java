@@ -29,14 +29,13 @@ public class DZGWebViewClient extends WebViewClient {
 
     public DZGWebViewClient(Context context) {
         mContext = context.getApplicationContext();
-        if (mContext instanceof InteractWithAvtivity) {
-            mListener = (InteractWithAvtivity) mContext;
+        if (context instanceof InteractWithAvtivity) {
+            mListener = (InteractWithAvtivity) context;
         }
     }
 
     @Override
     public void onPageStarted(WebView view, String url, Bitmap favicon) {
-        super.onPageStarted(view, url, favicon);
         if (mListener != null) {
             mListener.notifyUrlLoadStart();
         }
@@ -62,7 +61,6 @@ public class DZGWebViewClient extends WebViewClient {
 
     @Override
     public void onPageFinished(WebView view, String url) {
-        super.onPageFinished(view, url);
         if (mListener != null) {
             mListener.notifyUrlLoadFinish();
         }
