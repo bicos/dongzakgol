@@ -111,6 +111,7 @@ public class DZGWebViewClient extends WebViewClient {
         Intent intent = null;
         try {
             intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             mContext.startActivity(intent);
         } catch (URISyntaxException e) {
             handleURISyntaxException(e);

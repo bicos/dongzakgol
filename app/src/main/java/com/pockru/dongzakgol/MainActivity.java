@@ -453,7 +453,7 @@ public class MainActivity extends BaseActivity
         if (!TextUtils.isEmpty(url)) {
             Uri uri = Uri.parse(url);
             if (uri.isHierarchical()) {
-                if (uri.getQuery() != null) {
+                if (uri.getQuery() != null && uri.getQueryParameter("mid") != null && uri.getQueryParameter("document_srl") != null) {
                     sendEvent(uri.getQueryParameter("mid"), uri.getQueryParameter("document_srl"), "");
                 } else {
                     if (uri.getPathSegments() != null){
