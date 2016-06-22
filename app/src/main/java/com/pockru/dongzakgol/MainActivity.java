@@ -161,7 +161,6 @@ public class MainActivity extends BaseActivity
         mWebView = (DZGWebView) findViewById(R.id.webview);
         mWebView.setProgressBar((ProgressBar) findViewById(R.id.pb_webview));
         mWebView.setOnPageScrollSateListener(this);
-        mWebView.loadUrl(UrlConts.getMainUrl());
 
         mAdView = (AdView) findViewById(R.id.adView);
 
@@ -229,26 +228,30 @@ public class MainActivity extends BaseActivity
             }
 
         });
+
+        if (getIntent() != null) {
+            onNewIntent(getIntent());
+        } else {
+            mWebView.loadUrl(UrlConts.getMainUrl());
+        }
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
 
-        if (intent == null || intent.getAction() == null) return;
+        if (intent == null) return;
 
         switch (intent.getAction()) {
             case Intent.ACTION_VIEW:
-
                 Uri uri = intent.getData();
-
-                if (mWebView != null && uri != null) {
-                    mWebView.loadUrl(uri.toString());
+                if (mWebView != null) {
+                    mWebView.loadUrl(uri != null ? uri.toString() : UrlConts.getMainUrl());
                 }
 
                 break;
             default:
-
+                mWebView.loadUrl(UrlConts.getMainUrl());
                 break;
         }
     }
