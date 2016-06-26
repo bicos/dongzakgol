@@ -55,5 +55,6 @@
     <string name="dzgol_email_addr">dongzakgol@gmail.com</string>
     <string name="intent_data_dzgol_email_addr">mailto:dongzakgol@gmail.com</string>
     <string name="hint_add_favorite_cate">자주가는 카테고리를 추가해보세요!</string>
+    <string name="push_title">동작골</string>
 
 </resources>

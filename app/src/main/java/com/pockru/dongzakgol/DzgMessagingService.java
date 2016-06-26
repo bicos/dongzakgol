@@ -13,14 +13,15 @@ import android.util.Log;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
+import java.util.Random;
+import java.util.UUID;
+
 /**
  * Created by Ravy on 16. 6. 23..
  */
 public class DzgMessagingService extends FirebaseMessagingService {
 
-    private static final String TAG = "MyFirebaseMsgService";
-
-    private static final String KEY_EXTRA = "extra";
+    private static final String KEY_EXTRA = "extra_url";
 
     /**
      * Called when message is received.
@@ -30,14 +31,13 @@ public class DzgMessagingService extends FirebaseMessagingService {
     // [START receive_message]
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-        // TODO(developer): Handle FCM messages here.
         // If the application is in the foreground handle both data and notification messages here.
         // Also if you intend on generating your own notifications as a result of a received FCM
         // message, here is where that should be initiated. See sendNotification method below.
 //        Log.d(TAG, "From: " + remoteMessage.getFrom());
 //        Log.d(TAG, "Notification Message Body: " + remoteMessage.getNotification().getBody());
 
-        sendNotification(remoteMessage.getFrom(),
+        sendNotification(
                 remoteMessage.getNotification().getBody(),
                 remoteMessage.getData() != null ? remoteMessage.getData().get(KEY_EXTRA) : null);
     }
@@ -48,20 +48,21 @@ public class DzgMessagingService extends FirebaseMessagingService {
      *
      * @param messageBody FCM message body received.
      */
-    private void sendNotification(String from, String messageBody, String extra) {
+    private void sendNotification(String messageBody, String extra) {
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         if (TextUtils.isEmpty(extra) == false) {
             intent.setAction(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse(extra));
+            intent.putExtra(MainActivity.EXTRA_URL, extra);
         }
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
-                PendingIntent.FLAG_ONE_SHOT);
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, new Random().nextInt(), intent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
 
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         android.support.v4.app.NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.mipmap.final_icon)
-                .setContentTitle(from)
+                .setContentTitle(getString(R.string.push_title))
                 .setContentText(messageBody)
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)

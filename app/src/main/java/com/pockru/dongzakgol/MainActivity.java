@@ -17,6 +17,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
@@ -58,6 +59,8 @@ public class MainActivity extends BaseActivity
         FavoriteCategoryView.InteractionFavoriteView {
 
 //    private static final String FIRE_BASE_URL = "https://dongzakgol.firebaseio.com/";
+
+    public static final String EXTRA_URL = "extra_url";
 
     private DZGWebView mWebView;
 
@@ -229,10 +232,10 @@ public class MainActivity extends BaseActivity
 
         });
 
+        mWebView.loadUrl(UrlConts.getMainUrl());
+
         if (getIntent() != null) {
             onNewIntent(getIntent());
-        } else {
-            mWebView.loadUrl(UrlConts.getMainUrl());
         }
     }
 
@@ -242,17 +245,14 @@ public class MainActivity extends BaseActivity
 
         if (intent == null) return;
 
-        switch (intent.getAction()) {
-            case Intent.ACTION_VIEW:
-                Uri uri = intent.getData();
-                if (mWebView != null) {
-                    mWebView.loadUrl(uri != null ? uri.toString() : UrlConts.getMainUrl());
-                }
+//        if (intent.getExtras() != null) {
+//            for (String key : intent.getExtras().keySet()){
+//                Log.i("test", "key : " + key + ", value : "+intent.getExtras().get(key));
+//            }
+//        }
 
-                break;
-            default:
-                mWebView.loadUrl(UrlConts.getMainUrl());
-                break;
+        if (mWebView != null && intent.hasExtra(EXTRA_URL)) {
+            mWebView.loadUrl(intent.getStringExtra(EXTRA_URL));
         }
     }
 
