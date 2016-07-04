@@ -219,7 +219,7 @@ public class MainActivity extends BaseActivity
                 }
 
                 if (q.count() > 0) {
-                    q.findAll().clear();
+                    q.findAll().deleteAllFromRealm();
                 }
 
                 realm.commitTransaction();
