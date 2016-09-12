@@ -11,13 +11,13 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
@@ -30,18 +30,19 @@ import android.widget.Toast;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.pockru.dongzakgol.model.Category;
-import com.pockru.dongzakgol.module.imgur.helpers.DocumentHelper;
 import com.pockru.dongzakgol.module.imgur.helpers.IntentHelper;
 import com.pockru.dongzakgol.module.realm.DzgRealm;
-import com.pockru.dongzakgol.module.tumblr.service.TumblrOAuthActivity;
-import com.pockru.dongzakgol.module.tumblr.service.TumblrUploadImg;
-import com.pockru.dongzakgol.util.Preference;
 import com.pockru.dongzakgol.view.FavoriteCategoryView;
 import com.pockru.dongzakgol.webview.DZGWebView;
 import com.pockru.dongzakgol.webview.DZGWebViewClient;
@@ -59,6 +60,7 @@ public class MainActivity extends BaseActivity
         FavoriteCategoryView.InteractionFavoriteView {
 
 //    private static final String FIRE_BASE_URL = "https://dongzakgol.firebaseio.com/";
+    private static final String FIREBASE_STORAGE_REF = "gs://project-1969400518475156086.appspot.com";
 
     public static final String EXTRA_URL = "extra_url";
 
@@ -82,6 +84,8 @@ public class MainActivity extends BaseActivity
 
     private AdView mAdView;
 
+    private FirebaseStorage mStore;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,6 +93,7 @@ public class MainActivity extends BaseActivity
 //        Firebase.setAndroidContext(this);
 //        Firebase myFirebaseRef = new Firebase(FIRE_BASE_URL);
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+        mStore = FirebaseStorage.getInstance();
 
         realm = DzgRealm.getInstance(this);
 
@@ -153,7 +158,9 @@ public class MainActivity extends BaseActivity
         });
 
         mRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_layout);
-        mRefreshLayout.setColorSchemeColors(R.color.refresh_progress_1, R.color.refresh_progress_2);
+        mRefreshLayout.setColorSchemeColors(
+                ContextCompat.getColor(this, R.color.refresh_progress_1),
+                ContextCompat.getColor(this, R.color.refresh_progress_2));
         mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -352,12 +359,13 @@ public class MainActivity extends BaseActivity
             mWebView.loadUrl(UrlConts.getWriteUrl(mMid));
             return true;
         } else if (id == R.id.action_uploadPicture) {
-            if (TextUtils.isEmpty(Preference.getTumblrToken(getApplicationContext()))) {
-                Intent intent = new Intent(MainActivity.this, TumblrOAuthActivity.class);
-                startActivityForResult(intent, REQ_TUMBLR_AUTH);
-            } else {
-                showChooseFile();
-            }
+            showChooseFile();
+//            if (TextUtils.isEmpty(Preference.getTumblrToken(getApplicationContext()))) {
+//                Intent intent = new Intent(MainActivity.this, TumblrOAuthActivity.class);
+//                startActivityForResult(intent, REQ_TUMBLR_AUTH);
+//            } else {
+//                showChooseFile();
+//            }
             return true;
         }
 
@@ -387,23 +395,45 @@ public class MainActivity extends BaseActivity
                 if (resultCode != RESULT_OK) return;
 
                 Uri returnUri = data.getData();
-                String filePath = DocumentHelper.getPath(this, returnUri);
+//                String filePath = DocumentHelper.getPath(this, returnUri);
 
-                new TumblrUploadImg(MainActivity.this, new TumblrUploadImg.TumblrUploadListener() {
+                StorageReference storageRef = mStore.getReferenceFromUrl(FIREBASE_STORAGE_REF);
+
+                StorageReference uploadImgRef = storageRef.child("storage/" + returnUri.getLastPathSegment());
+
+                UploadTask uploadTask = uploadImgRef.putFile(returnUri);
+                uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
-                    public void getResponse(PhotoPost result) {
-                        if (result != null && result.getPhotos() != null && result.getPhotos().size() > 0) {
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        if (taskSnapshot != null && taskSnapshot.getDownloadUrl() != null) {
                             Toast.makeText(getApplicationContext(), getString(R.string.msg_success_upload_image), Toast.LENGTH_SHORT).show();
-                            insertIntoImg(result);
+                            insertIntoImg(taskSnapshot.getDownloadUrl().toString());
                         } else {
                             Toast.makeText(getApplicationContext(), getString(R.string.error_msg_failed_to_save_link), Toast.LENGTH_SHORT).show();
                         }
                     }
-                }).execute(
-                        Preference.getTumblrToken(getApplicationContext()),
-                        Preference.getTumblrSecret(getApplicationContext()),
-                        filePath
-                );
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getApplicationContext(), getString(R.string.error_msg_failed_to_save_link), Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+//                new TumblrUploadImg(MainActivity.this, new TumblrUploadImg.TumblrUploadListener() {
+//                    @Override
+//                    public void getResponse(PhotoPost result) {
+//                        if (result != null && result.getPhotos() != null && result.getPhotos().size() > 0) {
+//                            Toast.makeText(getApplicationContext(), getString(R.string.msg_success_upload_image), Toast.LENGTH_SHORT).show();
+//                            insertIntoImg(result);
+//                        } else {
+//                            Toast.makeText(getApplicationContext(), getString(R.string.error_msg_failed_to_save_link), Toast.LENGTH_SHORT).show();
+//                        }
+//                    }
+//                }).execute(
+//                        Preference.getTumblrToken(getApplicationContext()),
+//                        Preference.getTumblrSecret(getApplicationContext()),
+//                        filePath
+//                );
 
                 break;
 
@@ -413,6 +443,10 @@ public class MainActivity extends BaseActivity
     private void insertIntoImg(PhotoPost result) {
         if (result == null || result.getPhotos() == null || result.getPhotos().isEmpty()) return;
         mWebView.loadJavaScript(UrlConts.insertImageJS(result.getPhotos().get(0).getOriginalSize().getUrl()));
+    }
+
+    private void insertIntoImg(String imgUrl) {
+        mWebView.loadJavaScript(UrlConts.insertImageJS(imgUrl));
     }
 
     @Override
