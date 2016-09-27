@@ -9,8 +9,8 @@ android {
         applicationId "com.pockru.dongzakgol"
         minSdkVersion 9
         targetSdkVersion 24
-        versionCode 16
-        versionName "1.1.5"
+        versionCode 17
+        versionName "1.1.6"
     }
     buildTypes {
         release {
