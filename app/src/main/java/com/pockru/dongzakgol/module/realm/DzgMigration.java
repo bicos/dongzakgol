@@ -17,6 +17,8 @@ public class DzgMigration implements RealmMigration {
 
         RealmSchema schema = realm.getSchema();
 
+        schema.get("Category").setNullable("id", true);
+
         /**
          * Version 0 -> Version 1
          *

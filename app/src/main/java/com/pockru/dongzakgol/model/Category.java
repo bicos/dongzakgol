@@ -2,6 +2,7 @@ package com.pockru.dongzakgol.model;
 
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
+import io.realm.annotations.Required;
 
 /**
  * Created by Ravy on 16. 3. 20..
@@ -9,7 +10,7 @@ import io.realm.annotations.PrimaryKey;
 public class Category extends RealmObject {
 
     @PrimaryKey
-    private Long id;
+    private Long id = 0L;
     private String key;
     private String name;
     private Long order;
