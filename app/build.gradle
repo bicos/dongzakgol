@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'realm-android'
 
 android {
-    compileSdkVersion 25
+    compileSdkVersion 26
     buildToolsVersion "23.0.3"
 
     defaultConfig {
@@ -10,7 +10,7 @@ android {
         minSdkVersion 9
         targetSdkVersion 25
         versionCode 17
-        versionName "1.1.6"
+        versionName "1.1.7"
     }
     buildTypes {
         release {
