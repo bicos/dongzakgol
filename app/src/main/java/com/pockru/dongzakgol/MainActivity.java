@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -24,12 +23,9 @@ import android.view.SubMenu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
@@ -40,9 +36,12 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.pockru.dongzakgol.databinding.NavHeaderMainBinding;
+import com.pockru.dongzakgol.login.LoginActivity;
 import com.pockru.dongzakgol.model.Category;
-import com.pockru.dongzakgol.module.imgur.helpers.IntentHelper;
 import com.pockru.dongzakgol.module.realm.DzgRealm;
+import com.pockru.dongzakgol.sidemenu.SideMenuContract;
+import com.pockru.dongzakgol.sidemenu.SideMenuViewModel;
 import com.pockru.dongzakgol.view.FavoriteCategoryView;
 import com.pockru.dongzakgol.webview.DZGWebView;
 import com.pockru.dongzakgol.webview.DZGWebViewClient;
@@ -57,14 +56,15 @@ public class MainActivity extends BaseActivity
         implements DZGWebViewClient.InteractWithAvtivity,
         DZGWebView.PageScrollState,
         ActivityCompat.OnRequestPermissionsResultCallback,
-        FavoriteCategoryView.InteractionFavoriteView {
+        FavoriteCategoryView.InteractionFavoriteView, SideMenuContract.View {
 
-//    private static final String FIRE_BASE_URL = "https://dongzakgol.firebaseio.com/";
     private static final String FIREBASE_STORAGE_REF = "gs://project-1969400518475156086.appspot.com";
 
     public static final String EXTRA_URL = "extra_url";
 
-    private DZGWebView mWebView;
+    private static final int RC_LOGIN = 1;
+
+//    private DZGWebView mWebView;
 
     private String mMid = "";
     private String mSrl = "";
@@ -74,24 +74,20 @@ public class MainActivity extends BaseActivity
     private NavigationView navigationView;
 
     private TextView mDrawerHeader;
-    private Button mBtnLogin;
-    private Button mBtnLogout;
 
     private boolean isWriteMode = false;
 
     private Realm realm;
     RealmResults<Category> mCateList;
 
-    private AdView mAdView;
-
     private FirebaseStorage mStore;
+
+    private SideMenuViewModel mSideMenuViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-//        Firebase.setAndroidContext(this);
-//        Firebase myFirebaseRef = new Firebase(FIRE_BASE_URL);
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
         mStore = FirebaseStorage.getInstance();
 
@@ -107,7 +103,7 @@ public class MainActivity extends BaseActivity
         btnMoveUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mWebView.scrollTo(0, 0);
+
             }
         });
 
@@ -115,14 +111,14 @@ public class MainActivity extends BaseActivity
         btnMoveDown.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mWebView.scrollTo(0, (int) Math.floor(mWebView.getContentHeight() * mWebView.getScale()));
+
             }
         });
 
         mDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, mDrawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        mDrawer.setDrawerListener(toggle);
+        mDrawer.addDrawerListener(toggle);
         toggle.syncState();
 
         navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -139,23 +135,12 @@ public class MainActivity extends BaseActivity
                 return false;
             }
         });
+
         mDrawerHeader = (TextView) navigationView.getHeaderView(0).findViewById(R.id.tv_header_msg);
-        mBtnLogin = (Button) navigationView.getHeaderView(0).findViewById(R.id.btn_login);
-        mBtnLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mWebView.loadUrl(UrlConts.getLoginUrl(mMid, mSrl));
-                mDrawer.closeDrawer(GravityCompat.START);
-            }
-        });
-        mBtnLogout = (Button) navigationView.getHeaderView(0).findViewById(R.id.btn_logout);
-        mBtnLogout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mWebView.loadUrl(UrlConts.getLogoutUrl(mMid, mSrl));
-                mDrawer.closeDrawer(GravityCompat.START);
-            }
-        });
+
+        NavHeaderMainBinding binding = NavHeaderMainBinding.bind(navigationView.getHeaderView(0));
+        mSideMenuViewModel = new SideMenuViewModel(this);
+        binding.setViewModel(mSideMenuViewModel);
 
         mRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_layout);
         mRefreshLayout.setColorSchemeColors(
@@ -164,23 +149,9 @@ public class MainActivity extends BaseActivity
         mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                mWebView.reload();
+
             }
         });
-
-        mWebView = (DZGWebView) findViewById(R.id.webview);
-        mWebView.setProgressBar((ProgressBar) findViewById(R.id.pb_webview));
-        mWebView.setOnPageScrollSateListener(this);
-
-        mAdView = (AdView) findViewById(R.id.adView);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            AdRequest.Builder adRequestBuilder = new AdRequest.Builder();
-            adRequestBuilder.setGender(AdRequest.GENDER_FEMALE);
-            mAdView.loadAd(adRequestBuilder.build());
-        } else {
-            mAdView.setVisibility(View.GONE);
-        }
 
         FavoriteCategoryView categoryView = (FavoriteCategoryView) findViewById(R.id.favorite_category);
         categoryView.setInteractionFavoriteView(this);
@@ -239,8 +210,6 @@ public class MainActivity extends BaseActivity
 
         });
 
-        mWebView.loadUrl(UrlConts.getMainUrl());
-
         if (getIntent() != null) {
             onNewIntent(getIntent());
         }
@@ -251,16 +220,6 @@ public class MainActivity extends BaseActivity
         super.onNewIntent(intent);
 
         if (intent == null) return;
-
-//        if (intent.getExtras() != null) {
-//            for (String key : intent.getExtras().keySet()){
-//                Log.i("test", "key : " + key + ", value : "+intent.getExtras().get(key));
-//            }
-//        }
-
-        if (mWebView != null && intent.hasExtra(EXTRA_URL)) {
-            mWebView.loadUrl(intent.getStringExtra(EXTRA_URL));
-        }
     }
 
     @Override
@@ -268,61 +227,20 @@ public class MainActivity extends BaseActivity
         if (mDrawer.isDrawerOpen(GravityCompat.START)) {
             mDrawer.closeDrawer(GravityCompat.START);
         } else {
-//            WebBackForwardList webBackForwardList = mWebView.copyBackForwardList();
-//
-//            if (webBackForwardList != null
-//                    && webBackForwardList.getSize() > 1
-//                    && webBackForwardList.getItemAtIndex(webBackForwardList.getCurrentIndex() - 1) != null) {
-//                String backUrl = webBackForwardList.getItemAtIndex(webBackForwardList.getCurrentIndex() - 1).getUrl();
-//                UrlCheckUtils.checkUrl(backUrl, this);
-//            }
-
-            if (mWebView != null && mWebView.canGoBack()) {
-                mWebView.goBack();
-            } else {
-                super.onBackPressed();
-            }
+            super.onBackPressed();
         }
     }
 
-    /**
-     * Called when the fragment is visible to the user and actively running. Resumes the WebView.
-     */
     @Override
-    public void onPause() {
-        super.onPause();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            mWebView.onPause();
-        }
-//        mAdView.pause();
+    protected void onStart() {
+        super.onStart();
+        mSideMenuViewModel.addAuthStateListener();
     }
 
-    /**
-     * Called when the fragment is no longer resumed. Pauses the WebView.
-     */
     @Override
-    public void onResume() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            mWebView.onResume();
-        }
-//        mAdView.resume();
-        super.onResume();
-    }
-
-    /**
-     * Called when the fragment is no longer in use. Destroys the internal state of the WebView.
-     */
-    @Override
-    public void onDestroy() {
-        if (mWebView != null) {
-            mWebView.destroy();
-            mWebView = null;
-        }
-//        if (mAdView != null) {
-//            mAdView.destroy();
-//            mAdView = null;
-//        }
-        super.onDestroy();
+    protected void onStop() {
+        mSideMenuViewModel.removeStateListener();
+        super.onStop();
     }
 
     @Override
@@ -356,16 +274,10 @@ public class MainActivity extends BaseActivity
             startActivity(intent);
             return true;
         } else if (id == R.id.action_write) {
-            mWebView.loadUrl(UrlConts.getWriteUrl(mMid));
+
             return true;
         } else if (id == R.id.action_uploadPicture) {
             showChooseFile();
-//            if (TextUtils.isEmpty(Preference.getTumblrToken(getApplicationContext()))) {
-//                Intent intent = new Intent(MainActivity.this, TumblrOAuthActivity.class);
-//                startActivityForResult(intent, REQ_TUMBLR_AUTH);
-//            } else {
-//                showChooseFile();
-//            }
             return true;
         }
 
@@ -395,7 +307,6 @@ public class MainActivity extends BaseActivity
                 if (resultCode != RESULT_OK) return;
 
                 Uri returnUri = data.getData();
-//                String filePath = DocumentHelper.getPath(this, returnUri);
 
                 StorageReference storageRef = mStore.getReferenceFromUrl(FIREBASE_STORAGE_REF);
 
@@ -419,34 +330,23 @@ public class MainActivity extends BaseActivity
                     }
                 });
 
-//                new TumblrUploadImg(MainActivity.this, new TumblrUploadImg.TumblrUploadListener() {
-//                    @Override
-//                    public void getResponse(PhotoPost result) {
-//                        if (result != null && result.getPhotos() != null && result.getPhotos().size() > 0) {
-//                            Toast.makeText(getApplicationContext(), getString(R.string.msg_success_upload_image), Toast.LENGTH_SHORT).show();
-//                            insertIntoImg(result);
-//                        } else {
-//                            Toast.makeText(getApplicationContext(), getString(R.string.error_msg_failed_to_save_link), Toast.LENGTH_SHORT).show();
-//                        }
-//                    }
-//                }).execute(
-//                        Preference.getTumblrToken(getApplicationContext()),
-//                        Preference.getTumblrSecret(getApplicationContext()),
-//                        filePath
-//                );
-
                 break;
+            case RC_LOGIN:
+                if (resultCode == RESULT_OK) {
 
+                } else {
+
+                }
+                break;
         }
     }
 
     private void insertIntoImg(PhotoPost result) {
         if (result == null || result.getPhotos() == null || result.getPhotos().isEmpty()) return;
-        mWebView.loadJavaScript(UrlConts.insertImageJS(result.getPhotos().get(0).getOriginalSize().getUrl()));
     }
 
     private void insertIntoImg(String imgUrl) {
-        mWebView.loadJavaScript(UrlConts.insertImageJS(imgUrl));
+
     }
 
     @Override
@@ -455,7 +355,7 @@ public class MainActivity extends BaseActivity
     }
 
     private void loadMid(String mid) {
-        mWebView.loadUrl(UrlConts.MAIN_URL + "/" + mid);
+
     }
 
     @Override
@@ -507,9 +407,7 @@ public class MainActivity extends BaseActivity
 
     @Override
     public void notifyUrlLoadFinish() {
-        if (mAdView != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            mAdView.setVisibility(View.VISIBLE);
-        }
+
     }
 
     boolean isLogin = false;
@@ -522,9 +420,6 @@ public class MainActivity extends BaseActivity
                 if (!isLogin) {
                     isLogin = true;
                     mDrawerHeader.setText(msg + "님 환영합니다!");
-
-                    mBtnLogin.setVisibility(View.GONE);
-                    mBtnLogout.setVisibility(View.VISIBLE);
                 }
             }
         });
@@ -538,9 +433,6 @@ public class MainActivity extends BaseActivity
                 if (isLogin) {
                     isLogin = false;
                     mDrawerHeader.setText(msg);
-
-                    mBtnLogin.setVisibility(View.VISIBLE);
-                    mBtnLogout.setVisibility(View.GONE);
                 }
             }
         });
@@ -548,16 +440,7 @@ public class MainActivity extends BaseActivity
 
     @Override
     public void isShowAd(final boolean isShowAd) {
-        this.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                    if (mAdView != null) {
-                        mAdView.setVisibility(isShowAd ? View.GONE : View.VISIBLE);
-                    }
-                }
-            }
-        });
+
     }
 
     @Override
@@ -589,7 +472,9 @@ public class MainActivity extends BaseActivity
                     REQUEST_EXTERNAL_STORAGE
             );
         } else {
-            IntentHelper.chooseFileIntent(MainActivity.this);
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.setType("image/*");
+            startActivityForResult(intent, BaseActivity.REQ_FILECHOOSER_FOR_TUMBLR);
         }
     }
 
@@ -606,7 +491,9 @@ public class MainActivity extends BaseActivity
                     }
                 }
 
-                IntentHelper.chooseFileIntent(MainActivity.this);
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("image/*");
+                startActivityForResult(intent, BaseActivity.REQ_FILECHOOSER_FOR_TUMBLR);
                 break;
             case REQUEST_WRITE_EXTERNAL_STORAGE:
                 for (int grantResult : grantResults) {
@@ -615,16 +502,19 @@ public class MainActivity extends BaseActivity
                         break;
                     }
                 }
-
-                mWebView.saveImg();
                 break;
         }
     }
 
     @Override
     public void clickFavoriteItem(Category category) {
-        if (category != null && mWebView != null) {
+        if (category != null) {
             loadMid(category.getKey());
         }
+    }
+
+    @Override
+    public void requestLogin() {
+        startActivityForResult(new Intent(this, LoginActivity.class), RC_LOGIN);
     }
 }

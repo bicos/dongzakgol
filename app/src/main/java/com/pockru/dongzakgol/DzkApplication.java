@@ -12,7 +12,6 @@ import android.webkit.WebView;
  */
 public class DzkApplication extends Application {
 
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     @Override
     public void onCreate() {
         super.onCreate();

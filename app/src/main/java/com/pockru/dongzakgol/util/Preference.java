@@ -4,9 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
-import com.pockru.dongzakgol.Const;
-import com.pockru.dongzakgol.module.tumblr.service.TumblrOAuthActivity;
-
 public class Preference {
 
 	private static final String PREF_NAME = "bestiz";
