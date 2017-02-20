@@ -8,5 +8,6 @@ public class SideMenuContract {
 
     public interface View {
         void requestLogin();
+        void closeDrawer();
     }
 }

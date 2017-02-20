@@ -21,7 +21,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -139,7 +138,7 @@ public class MainActivity extends BaseActivity
         mDrawerHeader = (TextView) navigationView.getHeaderView(0).findViewById(R.id.tv_header_msg);
 
         NavHeaderMainBinding binding = NavHeaderMainBinding.bind(navigationView.getHeaderView(0));
-        mSideMenuViewModel = new SideMenuViewModel(this);
+        mSideMenuViewModel = new SideMenuViewModel(this, this);
         binding.setViewModel(mSideMenuViewModel);
 
         mRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_layout);
@@ -516,5 +515,10 @@ public class MainActivity extends BaseActivity
     @Override
     public void requestLogin() {
         startActivityForResult(new Intent(this, LoginActivity.class), RC_LOGIN);
+    }
+
+    @Override
+    public void closeDrawer() {
+        mDrawer.closeDrawer(GravityCompat.START);
     }
 }
