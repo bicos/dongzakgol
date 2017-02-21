@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseUser;
 import com.pockru.dongzakgol.BR;
 
 /**
@@ -21,6 +22,8 @@ public class ProfileViewModel extends BaseObservable {
 
     private String mUpdateUserName;
 
+    private Uri mPhotoUri;
+
     private ProfileContract.Request mRequest;
 
     private ProfileContract.View mView;
@@ -28,15 +31,35 @@ public class ProfileViewModel extends BaseObservable {
     public ProfileViewModel(ProfileContract.Request request, ProfileContract.View view) {
         mRequest = request;
         mView = view;
+
+        initUi();
+    }
+
+    private void initUi() {
+        FirebaseUser user = mRequest.getCurrentUser();
+
+        if (user != null) {
+            mPhotoUri = mRequest.getCurrentUser().getPhotoUrl();
+        }
+        notifyPropertyChanged(BR.profileImageUrl);
+
+        if (user != null) {
+            mUpdateUserName = mRequest.getCurrentUser().getDisplayName();
+        }
+        notifyPropertyChanged(BR.userName);
     }
 
     @Bindable
     public String getUserName(){
-        if (mRequest.getCurrentUser() != null) {
-            return mRequest.getCurrentUser().getDisplayName();
-        }
+        return mUpdateUserName;
+    }
 
-        return null;
+    public void changeName(CharSequence userName) {
+        if (userName == null) {
+            mUpdateUserName = "";
+            return;
+        }
+        mUpdateUserName = userName.toString();
     }
 
     @Bindable
@@ -64,64 +87,37 @@ public class ProfileViewModel extends BaseObservable {
 
     @Bindable
     public Uri getProfileImageUrl(){
-        if (mRequest.getCurrentUser() != null) {
-            return mRequest.getCurrentUser().getPhotoUrl();
-        }
+        return mPhotoUri;
+    }
 
-        return null;
+    public void setProfileImageUri(Uri uri){
+        mPhotoUri = uri;
+        notifyPropertyChanged(BR.profileImageUrl);
     }
 
     public void clickProfileImage(){
         mRequest.getProfileUri();
     }
 
-    public void receiveProfileImageUri(Uri uri){
-        mRequest.updateProfileImage(uri, new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void object) {
-                notifyPropertyChanged(BR.profileImageUrl);
-                mView.showUiSuccessUpdateProfileImage();
-            }
-        }, new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                notifyPropertyChanged(BR.profileImageUrl);
-                mView.showUiFailedUpdateProfileImage();
-            }
-        });
-    }
-
-    public void changeName(CharSequence userName) {
-        if (userName == null) {
-            mUpdateUserName = "";
-            return;
-        }
-        mUpdateUserName = userName.toString();
-    }
-
     public void clickUpdateUserProfile(){
         if (TextUtils.isEmpty(mUpdateUserName)) {
-            mView.showUiFailedUpdateUserName();
+            mView.showUiFailedUpdateProfile();
             return;
         }
 
-        if (mUpdateUserName.equals(getUserName())) {
-            return;
-        }
-
-        mRequest.updateUserName(mUpdateUserName, new OnSuccessListener<Void>() {
+        mRequest.updateProfile(mPhotoUri, mUpdateUserName, new OnSuccessListener<Void>() {
 
             @Override
             public void onSuccess(Void object) {
                 notifyPropertyChanged(BR.userName);
-                mView.showUiSuccessUpdateUserName();
+                mView.showUiSuccessUpdateProfile();
             }
         }, new OnFailureListener(){
 
             @Override
             public void onFailure(@NonNull Exception e) {
                 notifyPropertyChanged(BR.userName);
-                mView.showUiFailedUpdateUserName();
+                mView.showUiFailedUpdateProfile();
             }
         });
     }

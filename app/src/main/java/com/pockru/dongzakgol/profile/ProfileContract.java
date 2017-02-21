@@ -14,13 +14,9 @@ public class ProfileContract {
 
     public interface View {
 
-        void showUiSuccessUpdateProfileImage();
+        void showUiFailedUpdateProfile();
 
-        void showUiFailedUpdateProfileImage();
-
-        void showUiFailedUpdateUserName();
-
-        void showUiSuccessUpdateUserName();
+        void showUiSuccessUpdateProfile();
     }
 
     public interface Request {
@@ -29,8 +25,6 @@ public class ProfileContract {
 
         void getProfileUri();
 
-        void updateProfileImage(Uri uri, OnSuccessListener<Void> successListener, OnFailureListener failureListener);
-
-        void updateUserName(String mUpdateUserName, OnSuccessListener<Void> successListener, OnFailureListener failureListener);
+        void updateProfile(Uri uri, String mUpdateUserName, OnSuccessListener<Void> successListener, OnFailureListener failureListener);
     }
 }

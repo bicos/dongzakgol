@@ -37,7 +37,7 @@ public class ProfileActivity extends AppCompatActivity implements ProfileContrac
 
         if (RequestProfileImpl.RC_GALLERY == requestCode) {
             if (resultCode == RESULT_OK) {
-                mViewModel.receiveProfileImageUri(data.getData());
+                mViewModel.setProfileImageUri(data.getData());
             } else {
                 Toast.makeText(getApplicationContext(), "프로필 이미지 가져오기를 실패하였습니다.", Toast.LENGTH_SHORT).show();
             }
@@ -45,22 +45,12 @@ public class ProfileActivity extends AppCompatActivity implements ProfileContrac
     }
 
     @Override
-    public void showUiSuccessUpdateProfileImage() {
-        Toast.makeText(getApplicationContext(), "프로필 이미지 업데이트를 성공하였습니다.", Toast.LENGTH_SHORT).show();
+    public void showUiSuccessUpdateProfile() {
+        Toast.makeText(getApplicationContext(), "프로필 업데이트를 성공하였습니다.", Toast.LENGTH_SHORT).show();
     }
 
     @Override
-    public void showUiFailedUpdateProfileImage() {
-        Toast.makeText(getApplicationContext(), "프로필 이미지 업데이트를 실패하였습니다.", Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void showUiSuccessUpdateUserName() {
-        Toast.makeText(getApplicationContext(), "유저 이름 업데이트를 성공하였습니다.", Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void showUiFailedUpdateUserName() {
-        Toast.makeText(getApplicationContext(), "유저 이름 업데이트를 실패하였습니다.", Toast.LENGTH_SHORT).show();
+    public void showUiFailedUpdateProfile() {
+        Toast.makeText(getApplicationContext(), "프로필 업데이트를 실패하였습니다.", Toast.LENGTH_SHORT).show();
     }
 }

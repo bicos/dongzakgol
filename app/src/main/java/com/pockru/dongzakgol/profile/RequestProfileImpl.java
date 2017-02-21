@@ -3,10 +3,13 @@ package com.pockru.dongzakgol.profile;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
@@ -36,26 +39,28 @@ public class RequestProfileImpl implements ProfileContract.Request {
     }
 
     @Override
-    public void updateProfileImage(Uri uri, OnSuccessListener<Void> successListener, OnFailureListener failureListener) {
-
+    public void updateProfile(Uri uri, String updateUserName, OnSuccessListener<Void> successListener, OnFailureListener failureListener) {
         FirebaseUser user = mAuth.getCurrentUser();
 
-        if (user != null) {
-            user.updateProfile(new UserProfileChangeRequest.Builder()
-                    .setPhotoUri(uri).build())
-                    .addOnSuccessListener(mActivity, successListener)
-                    .addOnFailureListener(mActivity, failureListener);
+        UserProfileChangeRequest.Builder builder = new UserProfileChangeRequest.Builder();
+
+        if (uri != null) {
+            builder.setPhotoUri(uri);
         }
-    }
 
-    @Override
-    public void updateUserName(String updateUserName, OnSuccessListener<Void> successListener, OnFailureListener failureListener) {
-
-        FirebaseUser user = mAuth.getCurrentUser();
+        if (updateUserName != null) {
+            builder.setDisplayName(updateUserName);
+        }
 
         if (user != null) {
-            user.updateProfile(new UserProfileChangeRequest.Builder()
-                    .setDisplayName(updateUserName).build())
+            user.updateProfile(builder.build())
+                    .addOnCompleteListener(mActivity, new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            Log.i("test", "task.isSuccessful() : " + task.isSuccessful());
+
+                        }
+                    })
                     .addOnSuccessListener(mActivity, successListener)
                     .addOnFailureListener(mActivity, failureListener);
         }
